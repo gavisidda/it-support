@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>TechLink – IT Service Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+<style>
+/* ═══════════════════════════════════════════════
+   §1 — CSS VARIABLES & RESET
+═══════════════════════════════════════════════ */
+:root {
+  /*--bg: #0a0e1a;*/
+  --bg: #0a0e1a;
+  --surface: #111827;
+  --surface2: #1a2236;
+  --border: #1e2d47;
+  --accent: #3b82f6;
+  --accent2: #06b6d4;
+  --success: #10b981;
+  --warn: #f59e0b;
+  --danger: #ef4444;
+  --text: #e2e8f0;
+  --muted: #64748b;
+  --card: #131e30;
+  --glow: rgba(59,130,246,0.15);
+  --radius: 12px;
+  --font-head: 'Syne', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:15px;line-height:1.6;min-height:100vh;overflow-x:hidden}
+button{cursor:pointer;font-family:var(--font-body)}
+input,select,textarea{font-family:var(--font-body)}
+a{color:var(--accent);text-decoration:none}
+img{max-width:100%}
+
+/* ═══════════════════════════════════════════════
+   §2 — BACKGROUND MESH
+═══════════════════════════════════════════════ */
+body::before{
+  content:'';position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% -10%, rgba(59,130,246,0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 80% 110%, rgba(6,182,212,0.08) 0%, transparent 55%);
+  pointer-events:none;z-index:0;
+}
+
+/* ═══════════════════════════════════════════════
+   §3 — LOADING SCREEN
+═══════════════════════════════════════════════ */
+#loading-screen{
+  position:fixed;inset:0;background:var(--bg);z-index:9999;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;
+  transition:opacity .4s ease;
+}
+#loading-screen.fade-out{opacity:0;pointer-events:none}
+.loader-logo{font-family:var(--font-head);font-size:2rem;font-weight:800;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.loader-ring{width:40px;height:40px;border:3px solid var(--border);
+  border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ═══════════════════════════════════════════════
+   §4 — NAVBAR
+═══════════════════════════════════════════════ */
+#navbar{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  background:rgba(10,14,26,0.85);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 28px;height:60px;
+}
+.nav-brand{font-family:var(--font-head);font-weight:800;font-size:1.2rem;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  display:flex;align-items:center;gap:8px}
+.nav-brand svg{flex-shrink:0}
+.nav-user{display:flex;align-items:center;gap:12px;font-size:.85rem}
+.badge{padding:3px 10px;border-radius:20px;font-size:.72rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.badge-admin{background:rgba(245,158,11,.15);color:var(--warn);border:1px solid rgba(245,158,11,.3)}
+.badge-pro{background:rgba(16,185,129,.15);color:var(--success);border:1px solid rgba(16,185,129,.3)}
+.badge-user{background:rgba(59,130,246,.15);color:var(--accent);border:1px solid rgba(59,130,246,.3)}
+.btn-sm{padding:6px 14px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:.82rem;transition:.2s}
+.btn-sm:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ═══════════════════════════════════════════════
+   §5 — PAGE SYSTEM
+═══════════════════════════════════════════════ */
+.page{display:none;min-height:100vh;padding-top:60px;position:relative;z-index:1}
+.page.active{display:block;animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.container{max-width:1100px;margin:0 auto;padding:40px 24px}
+.container-sm{max-width:520px;margin:0 auto;padding:40px 24px}
+
+/* ═══════════════════════════════════════════════
+   §6 — LANDING PAGE
+═══════════════════════════════════════════════ */
+#page-landing{background:transparent}
+.hero{text-align:center;padding:80px 24px 60px}
+.hero-tag{display:inline-block;padding:5px 16px;border-radius:20px;
+  background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.25);
+  color:var(--accent);font-size:.8rem;font-weight:500;letter-spacing:.05em;margin-bottom:24px}
+.hero h1{font-family:var(--font-head);font-size:clamp(2.2rem,5vw,3.8rem);font-weight:800;
+  line-height:1.1;margin-bottom:20px}
+.hero h1 span{background:linear-gradient(135deg,var(--accent) 30%,var(--accent2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{color:var(--muted);font-size:1.05rem;max-width:560px;margin:0 auto 40px}
+.hero-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.btn-primary{padding:13px 28px;border-radius:10px;border:none;
+  background:linear-gradient(135deg,var(--accent),#2563eb);
+  color:#fff;font-weight:600;font-size:.95rem;transition:.2s;
+  box-shadow:0 0 24px rgba(59,130,246,.3)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 0 36px rgba(59,130,246,.45)}
+.btn-outline{padding:13px 28px;border-radius:10px;
+  border:1px solid var(--border);background:transparent;
+  color:var(--text);font-weight:500;font-size:.95rem;transition:.2s}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent)}
+
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;margin-top:60px}
+.feat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:28px;transition:.3s;position:relative;overflow:hidden}
+.feat-card::before{content:'';position:absolute;inset:0;opacity:0;
+  background:linear-gradient(135deg,var(--glow),transparent);transition:.3s}
+.feat-card:hover::before{opacity:1}
+.feat-card:hover{border-color:var(--accent);transform:translateY(-3px)}
+.feat-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+  margin-bottom:16px;font-size:1.3rem}
+.feat-card h3{font-family:var(--font-head);font-weight:700;font-size:1rem;margin-bottom:8px}
+.feat-card p{color:var(--muted);font-size:.87rem}
+
+/* ═══════════════════════════════════════════════
+   §7 — AUTH PAGES
+═══════════════════════════════════════════════ */
+.auth-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:40px 36px}
+.auth-card h2{font-family:var(--font-head);font-size:1.6rem;font-weight:800;margin-bottom:6px}
+.auth-card p.sub{color:var(--muted);font-size:.88rem;margin-bottom:28px}
+.role-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:24px}
+.role-tab{padding:12px;border-radius:10px;border:1px solid var(--border);background:transparent;
+  color:var(--muted);font-size:.88rem;font-weight:500;transition:.2s;text-align:center}
+.role-tab.active,.role-tab:hover{border-color:var(--accent);color:var(--accent);background:rgba(59,130,246,.08)}
+
+.form-group{margin-bottom:18px}
+.form-group label{display:block;font-size:.82rem;font-weight:500;color:var(--muted);margin-bottom:6px;letter-spacing:.02em}
+.form-control{width:100%;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);
+  border-radius:8px;color:var(--text);font-size:.9rem;outline:none;transition:.2s}
+.form-control:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.12)}
+.form-control::placeholder{color:var(--muted)}
+select.form-control option{background:var(--surface2)}
+.btn-full{width:100%;padding:13px;border-radius:10px;border:none;
+  background:linear-gradient(135deg,var(--accent),#2563eb);
+  color:#fff;font-weight:600;font-size:.95rem;transition:.2s;margin-top:6px}
+.btn-full:hover{opacity:.9;transform:translateY(-1px)}
+.auth-link{text-align:center;margin-top:18px;font-size:.85rem;color:var(--muted)}
+.err-msg{color:var(--danger);font-size:.82rem;margin-top:8px;display:none}
+.err-msg.show{display:block}
+
+/* ═══════════════════════════════════════════════
+   §8 — DASHBOARD LAYOUT
+═══════════════════════════════════════════════ */
+.dash-layout{display:grid;grid-template-columns:230px 1fr;min-height:calc(100vh - 60px)}
+@media(max-width:768px){.dash-layout{grid-template-columns:1fr}}
+.sidebar{background:var(--surface);border-right:1px solid var(--border);padding:24px 16px;position:sticky;top:60px;height:calc(100vh - 60px);overflow-y:auto}
+@media(max-width:768px){.sidebar{display:none}}
+.sidebar-section{margin-bottom:8px}
+.sidebar-label{font-size:.7rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;padding:0 10px;margin-bottom:6px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;
+  color:var(--muted);font-size:.88rem;font-weight:500;cursor:pointer;transition:.2s;margin-bottom:2px;border:none;background:none;width:100%;text-align:left}
+.nav-item:hover,.nav-item.active{background:rgba(59,130,246,.1);color:var(--accent)}
+.nav-item svg{flex-shrink:0;width:16px;height:16px}
+.nav-item .count{margin-left:auto;background:var(--accent);color:#fff;border-radius:20px;font-size:.7rem;padding:1px 7px}
+
+.dash-main{padding:32px 28px;overflow-y:auto}
+@media(max-width:768px){.dash-main{padding:20px 16px}}
+.dash-header{margin-bottom:28px}
+.dash-header h2{font-family:var(--font-head);font-size:1.5rem;font-weight:800}
+.dash-header p{color:var(--muted);font-size:.88rem;margin-top:4px}
+
+/* ═══════════════════════════════════════════════
+   §9 — STAT CARDS
+═══════════════════════════════════════════════ */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:28px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;position:relative;overflow:hidden}
+.stat-card::after{content:'';position:absolute;top:0;right:0;width:60px;height:60px;border-radius:0 12px 0 60px;opacity:.15}
+.stat-card.blue::after{background:var(--accent)}
+.stat-card.cyan::after{background:var(--accent2)}
+.stat-card.green::after{background:var(--success)}
+.stat-card.amber::after{background:var(--warn)}
+.stat-card.red::after{background:var(--danger)}
+.stat-num{font-family:var(--font-head);font-size:2rem;font-weight:800;line-height:1}
+.stat-label{color:var(--muted);font-size:.8rem;margin-top:6px}
+
+/* ═══════════════════════════════════════════════
+   §10 — SERVICE REQUEST CARDS
+═══════════════════════════════════════════════ */
+.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.section-head h3{font-family:var(--font-head);font-weight:700;font-size:1rem}
+.requests-list{display:flex;flex-direction:column;gap:12px}
+.req-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;transition:.2s;position:relative;overflow:hidden}
+.req-card:hover{border-color:rgba(59,130,246,.35);transform:translateY(-2px)}
+.req-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.req-title{font-family:var(--font-head);font-weight:700;font-size:.95rem;margin-bottom:4px}
+.req-meta{color:var(--muted);font-size:.8rem;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.req-meta svg{width:12px;height:12px;flex-shrink:0}
+.req-desc{color:var(--muted);font-size:.85rem;margin-top:10px;line-height:1.5}
+.req-actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+
+/* Status badges */
+.status{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:.72rem;font-weight:600;letter-spacing:.03em;text-transform:uppercase;white-space:nowrap}
+.status::before{content:'';width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.status-pending{background:rgba(245,158,11,.12);color:var(--warn);border:1px solid rgba(245,158,11,.25)}
+.status-pending::before{background:var(--warn)}
+.status-accepted{background:rgba(59,130,246,.12);color:var(--accent);border:1px solid rgba(59,130,246,.25)}
+.status-accepted::before{background:var(--accent)}
+.status-inprogress{background:rgba(6,182,212,.12);color:var(--accent2);border:1px solid rgba(6,182,212,.25)}
+.status-inprogress::before{background:var(--accent2)}
+.status-resolved{background:rgba(16,185,129,.12);color:var(--success);border:1px solid rgba(16,185,129,.25)}
+.status-resolved::before{background:var(--success)}
+.status-cancelled{background:rgba(239,68,68,.12);color:var(--danger);border:1px solid rgba(239,68,68,.25)}
+.status-cancelled::before{background:var(--danger)}
+
+.btn-action{padding:7px 14px;border-radius:8px;border:none;font-size:.8rem;font-weight:600;transition:.2s;cursor:pointer}
+.btn-accept{background:rgba(16,185,129,.15);color:var(--success);border:1px solid rgba(16,185,129,.3)}
+.btn-accept:hover{background:rgba(16,185,129,.25)}
+.btn-reject{background:rgba(239,68,68,.1);color:var(--danger);border:1px solid rgba(239,68,68,.25)}
+.btn-reject:hover{background:rgba(239,68,68,.2)}
+.btn-progress{background:rgba(6,182,212,.1);color:var(--accent2);border:1px solid rgba(6,182,212,.25)}
+.btn-progress:hover{background:rgba(6,182,212,.2)}
+.btn-resolve{background:rgba(16,185,129,.1);color:var(--success);border:1px solid rgba(16,185,129,.25)}
+.btn-resolve:hover{background:rgba(16,185,129,.2)}
+.btn-cancel{background:rgba(239,68,68,.08);color:var(--danger);border:1px solid rgba(239,68,68,.2)}
+.btn-cancel:hover{background:rgba(239,68,68,.15)}
+
+/* ═══════════════════════════════════════════════
+   §11 — MODAL
+═══════════════════════════════════════════════ */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);
+  z-index:500;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;
+  width:100%;max-width:540px;max-height:90vh;overflow-y:auto;padding:32px;animation:modalIn .25s ease}
+@keyframes modalIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.modal h3{font-family:var(--font-head);font-size:1.2rem;font-weight:800;margin-bottom:4px}
+.modal p.sub{color:var(--muted);font-size:.85rem;margin-bottom:24px}
+.modal-close{position:absolute;top:16px;right:16px;background:none;border:none;color:var(--muted);font-size:1.4rem;cursor:pointer;line-height:1}
+.modal-close:hover{color:var(--text)}
+
+/* ═══════════════════════════════════════════════
+   §12 — PROFESSIONALS GRID
+═══════════════════════════════════════════════ */
+.pros-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+.pro-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;transition:.2s}
+.pro-card:hover{border-color:rgba(59,130,246,.3);transform:translateY(-2px)}
+.pro-avatar{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));
+  display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:800;font-size:1.1rem;color:#fff;margin-bottom:12px}
+.pro-name{font-family:var(--font-head);font-weight:700;font-size:.95rem}
+.pro-skill{color:var(--accent2);font-size:.82rem;margin-top:2px}
+.pro-loc{color:var(--muted);font-size:.8rem;margin-top:6px;display:flex;align-items:center;gap:4px}
+.pro-avail{display:inline-flex;align-items:center;gap:5px;margin-top:10px;font-size:.75rem;font-weight:600;padding:3px 10px;border-radius:20px}
+.pro-avail.on{background:rgba(16,185,129,.12);color:var(--success);border:1px solid rgba(16,185,129,.25)}
+.pro-avail.off{background:rgba(239,68,68,.1);color:var(--danger);border:1px solid rgba(239,68,68,.2)}
+.pro-avail::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor}
+
+/* ═══════════════════════════════════════════════
+   §13 — FILTER BAR
+═══════════════════════════════════════════════ */
+.filter-bar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}
+.filter-chip{padding:7px 14px;border-radius:20px;border:1px solid var(--border);background:transparent;
+  color:var(--muted);font-size:.8rem;cursor:pointer;transition:.2s}
+.filter-chip:hover,.filter-chip.active{border-color:var(--accent);color:var(--accent);background:rgba(59,130,246,.08)}
+.search-box{flex:1;min-width:180px;padding:8px 14px;background:var(--surface2);
+  border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.88rem;outline:none}
+.search-box:focus{border-color:var(--accent)}
+.search-box::placeholder{color:var(--muted)}
+
+/* ═══════════════════════════════════════════════
+   §14 — TOASTS
+═══════════════════════════════════════════════ */
+#toast-container{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:10px;pointer-events:none}
+.toast{background:var(--surface2);border:1px solid var(--border);border-radius:10px;
+  padding:12px 18px;font-size:.85rem;max-width:320px;pointer-events:all;
+  display:flex;align-items:center;gap:10px;animation:toastIn .3s ease;
+  box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.toast.success{border-left:3px solid var(--success)}
+.toast.error{border-left:3px solid var(--danger)}
+.toast.info{border-left:3px solid var(--accent)}
+@keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+
+/* ═══════════════════════════════════════════════
+   §15 — EMPTY STATES
+═══════════════════════════════════════════════ */
+.empty{text-align:center;padding:60px 20px;color:var(--muted)}
+.empty svg{margin-bottom:16px;opacity:.3}
+.empty h4{font-family:var(--font-head);font-size:1rem;font-weight:700;margin-bottom:6px;color:var(--text)}
+.empty p{font-size:.85rem}
+
+/* ═══════════════════════════════════════════════
+   §16 — DIVIDER & MISC
+═══════════════════════════════════════════════ */
+.divider{height:1px;background:var(--border);margin:20px 0}
+.tag{display:inline-block;padding:3px 10px;border-radius:6px;font-size:.72rem;font-weight:600;background:rgba(59,130,246,.12);color:var(--accent);border:1px solid rgba(59,130,246,.2);margin:2px}
+.spinner{width:24px;height:24px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto}
+</style>
+</head>
+<body>
+
+<!-- §17 — LOADING SCREEN -->
+<div id="loading-screen">
+  <div class="loader-logo">⚡ TechLink</div>
+  <div class="loader-ring"></div>
+</div>
+
+<!-- §18 — TOAST CONTAINER -->
+<div id="toast-container"></div>
+
+<!-- §19 — NAVBAR -->
+<nav id="navbar" style="display:none">
+  <div class="nav-brand">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="url(#ng)" stroke-width="2" stroke-linecap="round"><defs><linearGradient id="ng" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#06b6d4"/></linearGradient></defs><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+    TechLink
+  </div>
+  <div class="nav-user">
+    <span id="nav-name" style="font-size:.85rem;color:var(--muted)"></span>
+    <span id="nav-badge" class="badge"></span>
+    <button class="btn-sm" onclick="logout()">Sign out</button>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════════════════════
+     §20 — PAGE: LANDING
+══════════════════════════════════════════════════════ -->
+<div id="page-landing" class="page active">
+  <nav style="position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,14,26,0.85);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:60px;">
+    <div class="nav-brand">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="url(#ng2)" stroke-width="2" stroke-linecap="round"><defs><linearGradient id="ng2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#06b6d4"/></linearGradient></defs><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+      TechLink
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn-outline" style="padding:8px 18px;font-size:.85rem" onclick="showPage('login')">Sign In</button>
+      <button class="btn-primary" style="padding:8px 18px;font-size:.85rem" onclick="showPage('register')">Get Started</button>
+    </div>
+  </nav>
+
+  <div class="container" style="padding-top:px">
+    <div class="hero">
+      <div class="hero-tag">🌐 Location-Based IT Services</div>
+      <h2>Connect with <span>IT Professionals</span> in Your City</h2>
+      <p>Post IT service requests and get matched with certified professionals in your area — for infrastructure, networking, hardware, and more.</p>
+      <div class="hero-btns">
+        <button class="btn-primary" onclick="showPage('register')">Request a Service</button>
+        <button class="btn-outline" onclick="showPage('register-pro')">Join as IT Pro</button>
+      </div>
+    </div>
+
+    <div class="features-grid">
+      <div class="feat-card">
+        <div class="feat-icon" style="background:rgba(59,130,246,.15)">📍</div>
+        <h3>Location Matching</h3>
+        <p>Get matched with verified IT professionals in your city or district automatically.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon" style="background:rgba(16,185,129,.15)">⚡</div>
+        <h3>Fast Response</h3>
+        <p>Professionals in your area see your request instantly and can accept within minutes.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon" style="background:rgba(245,158,11,.15)">🖥️</div>
+        <h3>IT Infrastructure</h3>
+        <p>Networking, servers, hardware, Active Directory, cabling, CCTV, and more.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon" style="background:rgba(6,182,212,.15)">📊</div>
+        <h3>Real-Time Tracking</h3>
+        <p>Track your service request status from submitted to resolved in real time.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     §21 — PAGE: LOGIN
+══════════════════════════════════════════════════════ -->
+<div id="page-login" class="page">
+  <div class="container-sm">
+    <div style="text-align:center;margin-bottom:28px">
+      <div class="nav-brand" style="justify-content:center;font-size:1.4rem;margin-bottom:4px">⚡ TechLink</div>
+    </div>
+    <div class="auth-card">
+      <h2>Welcome back</h2>
+      <p class="sub">Sign in to your account</p>
+      <div class="form-group">
+        <label>Email address</label>
+        <input type="email" id="login-email" class="form-control" placeholder="you@example.com"/>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="login-pass" class="form-control" placeholder="••••••••"/>
+      </div>
+      <div id="login-err" class="err-msg"></div>
+      <button class="btn-full" onclick="doLogin()">Sign In</button>
+      <div class="auth-link">Don't have an account? <a href="#" onclick="showPage('register')">Sign up as Requestor</a> or <a href="#" onclick="showPage('register-pro')">as IT Pro</a></div>
+      <div class="auth-link" style="margin-top:6px"><a href="#" onclick="showPage('landing')">← Back to home</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     §22 — PAGE: REGISTER (REQUESTOR)
+══════════════════════════════════════════════════════ -->
+<div id="page-register" class="page">
+  <div class="container-sm">
+    <div class="auth-card">
+      <h2>Create Account</h2>
+      <p class="sub">Register as a Service Requestor</p>
+      <div class="form-group"><label>Full Name</label><input type="text" id="reg-name" class="form-control" placeholder="Your full name"/></div>
+      <div class="form-group"><label>Email address</label><input type="email" id="reg-email" class="form-control" placeholder="you@example.com"/></div>
+      <div class="form-group"><label>Phone</label><input type="tel" id="reg-phone" class="form-control" placeholder="+91 9XXXXXXXXX"/></div>
+      <div class="form-group"><label>Organisation / Company</label><input type="text" id="reg-org" class="form-control" placeholder="Your company or organisation"/></div>
+      <div class="form-group"><label>City / Area</label><input type="text" id="reg-city" class="form-control" placeholder="e.g. Koppal, Bengaluru, Hubballi"/></div>
+      <div class="form-group"><label>Password</label><input type="password" id="reg-pass" class="form-control" placeholder="Min 6 characters"/></div>
+      <div id="reg-err" class="err-msg"></div>
+      <button class="btn-full" onclick="doRegister('requestor')">Create Account</button>
+      <div class="auth-link">Already have an account? <a href="#" onclick="showPage('login')">Sign In</a></div>
+      <div class="auth-link"><a href="#" onclick="showPage('register-pro')">Register as IT Professional instead →</a></div>
+      <div class="auth-link"><a href="#" onclick="showPage('landing')">← Back</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     §23 — PAGE: REGISTER (IT PRO)
+══════════════════════════════════════════════════════ -->
+<div id="page-register-pro" class="page">
+  <div class="container-sm">
+    <div class="auth-card">
+      <h2>Join as IT Professional</h2>
+      <p class="sub">Register to accept service requests in your area</p>
+      <div class="form-group"><label>Full Name</label><input type="text" id="pro-name" class="form-control" placeholder="Your full name"/></div>
+      <div class="form-group"><label>Email address</label><input type="email" id="pro-email" class="form-control" placeholder="you@example.com"/></div>
+      <div class="form-group"><label>Phone</label><input type="tel" id="pro-phone" class="form-control" placeholder="+91 9XXXXXXXXX"/></div>
+      <div class="form-group">
+        <label>Primary Skill / Specialisation</label>
+        <select id="pro-skill" class="form-control">
+          <option value="">Select skill</option>
+          <option>Network Infrastructure</option>
+          <option>Server Administration</option>
+          <option>Active Directory / Windows Admin</option>
+          <option>Hardware & Repair</option>
+          <option>CCTV & Surveillance</option>
+          <option>Structured Cabling</option>
+          <option>Cybersecurity</option>
+          <option>Cloud Infrastructure</option>
+          <option>IT Support & Helpdesk</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="form-group"><label>City / Service Area</label><input type="text" id="pro-city" class="form-control" placeholder="e.g. Koppal, Bengaluru"/></div>
+      <div class="form-group"><label>Years of Experience</label><input type="number" id="pro-exp" class="form-control" min="0" max="40" placeholder="e.g. 5"/></div>
+      <div class="form-group"><label>Password</label><input type="password" id="pro-pass" class="form-control" placeholder="Min 6 characters"/></div>
+      <div id="pro-err" class="err-msg"></div>
+      <button class="btn-full" onclick="doRegister('professional')">Register as IT Pro</button>
+      <div class="auth-link"><a href="#" onclick="showPage('register')">Register as Requestor instead →</a></div>
+      <div class="auth-link"><a href="#" onclick="showPage('login')">Already have an account? Sign In</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     §24 — PAGE: REQUESTOR DASHBOARD
+══════════════════════════════════════════════════════ -->
+<div id="page-dash-requestor" class="page">
+  <div class="dash-layout">
+    <aside class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-label">Menu</div>
+        <button class="nav-item active" onclick="rTab('overview',this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          Overview
+        </button>
+        <button class="nav-item" onclick="rTab('my-requests',this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          My Requests
+          <span id="r-req-count" class="count" style="display:none">0</span>
+        </button>
+        <button class="nav-item" onclick="rTab('professionals',this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          IT Professionals
+        </button>
+        <button class="nav-item" onclick="rTab('new-request',this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+          New Request
+        </button>
+      </div>
+    </aside>
+    <main class="dash-main">
+      <!-- Overview Tab -->
+      <div id="r-tab-overview">
+        <div class="dash-header">
+          <h2 id="r-welcome">Welcome back 👋</h2>
+          <p>Here's a summary of your service requests</p>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card amber"><div class="stat-num" id="r-stat-pending">0</div><div class="stat-label">Pending</div></div>
+          <div class="stat-card blue"><div class="stat-num" id="r-stat-accepted">0</div><div class="stat-label">Accepted</div></div>
+          <div class="stat-card cyan"><div class="stat-num" id="r-stat-inprog">0</div><div class="stat-label">In Progress</div></div>
+          <div class="stat-card green"><div class="stat-num" id="r-stat-resolved">0</div><div class="stat-label">Resolved</div></div>
+        </div>
+        <div class="section-head"><h3>Recent Requests</h3><button class="btn-sm" onclick="rTab('my-requests',null)">View All</button></div>
+        <div id="r-recent-list" class="requests-list"></div>
+      </div>
+
+      <!-- My Requests Tab -->
+      <div id="r-tab-my-requests" style="display:none">
+        <div class="dash-header"><h2>My Service Requests</h2><p>All your submitted requests</p></div>
+        <div class="filter-bar">
+          <input type="text" class="search-box" placeholder="Search requests…" oninput="filterRRequests(this.value)" style="max-width:220px"/>
+          <button class="filter-chip active" onclick="filterRByStatus('all',this)">All</button>
+          <button class="filter-chip" onclick="filterRByStatus('pending',this)">Pending</button>
+          <button class="filter-chip" onclick="filterRByStatus('accepted',this)">Accepted</button>
+          <button class="filter-chip" onclick="filterRByStatus('inprogress',this)">In Progress</button>
+          <button class="filter-chip" onclick="filterRByStatus('resolved',this)">Resolved</button>
+        </div>
+        <div id="r-requests-list" class="requests-list"></div>
+      </div>
+
+      <!-- IT Professionals Tab -->
+      <div id="r-tab-professionals" style="display:none">
+        <div class="dash-header"><h2>IT Professionals</h2><p>Verified professionals in your area</p></div>
+        <div class="filter-bar">
+          <input type="text" class="search-box" placeholder="Search by name or city…" oninput="filterPros(this.value)"/>
+        </div>
+        <div id="r-pros-grid" class="pros-grid"></div>
+      </div>
+
+      <!-- New Request Tab -->
+      <div id="r-tab-new-request" style="display:none">
+        <div class="dash-header"><h2>New Service Request</h2><p>Describe the IT issue or service you need</p></div>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;max-width:600px">
+          <div class="form-group"><label>Request Title</label><input type="text" id="nr-title" class="form-control" placeholder="e.g. Network switch replacement needed"/></div>
+          <div class="form-group">
+            <label>Service Category</label>
+            <select id="nr-category" class="form-control">
+              <option value="">Select category</option>
+              <option>Network Infrastructure</option>
+              <option>Server Administration</option>
+              <option>Active Directory / Windows Admin</option>
+              <option>Hardware & Repair</option>
+              <option>CCTV & Surveillance</option>
+              <option>Structured Cabling</option>
+              <option>Cybersecurity</option>
+              <option>Cloud Infrastructure</option>
+              <option>IT Support & Helpdesk</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Priority</label>
+            <select id="nr-priority" class="form-control">
+              <option>Low</option>
+              <option selected>Medium</option>
+              <option>High</option>
+              <option>Critical</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Location / Site</label><input type="text" id="nr-location" class="form-control" placeholder="Address or area where service is needed"/></div>
+          <div class="form-group"><label>Detailed Description</label><textarea id="nr-desc" class="form-control" rows="4" placeholder="Describe the problem or service required in detail…"></textarea></div>
+          <div id="nr-err" class="err-msg"></div>
+          <button class="btn-full" onclick="submitRequest()">Submit Request</button>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     §25 — PAGE: PROFESSIONAL DASHBOARD
+══════════════════════════════════════════════════════ -->
+<div id="page-dash-professional" class="page">
+  <div class="dash-layout">
+    <aside class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-label">Menu</div>
+        <button class="nav-item active" onclick="pTab('overview',this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          Overview
+        </button>
+        <button class="nav-item" onclick="pTab('open-requests',this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Open Requests
+          <span id="p-open-count" class="count" style="display:none">0</span>
+        </button>
+        <button class="nav-item" onclick="pTab('my-jobs',this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          My Jobs
+        </button>
+        <button class="nav-item" onclick="pTab('profile',this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          My Profile
+        </button>
+      </div>
+    </aside>
+    <main class="dash-main">
+      <!-- Overview -->
+      <div id="p-tab-overview">
+        <div class="dash-header">
+          <h2 id="p-welcome">Welcome 👋</h2>
+          <p>Manage service requests in your area</p>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card amber"><div class="stat-num" id="p-stat-open">0</div><div class="stat-label">Open Requests</div></div>
+          <div class="stat-card blue"><div class="stat-num" id="p-stat-accepted">0</div><div class="stat-label">Accepted</div></div>
+          <div class="stat-card cyan"><div class="stat-num" id="p-stat-inprog">0</div><div class="stat-label">In Progress</div></div>
+          <div class="stat-card green"><div class="stat-num" id="p-stat-resolved">0</div><div class="stat-label">Resolved</div></div>
+        </div>
+        <div class="section-head"><h3>Open Requests in Your Area</h3></div>
+        <div id="p-open-list" class="requests-list"></div>
+      </div>
+
+      <!-- Open Requests -->
+      <div id="p-tab-open-requests" style="display:none">
+        <div class="dash-header"><h2>Open Service Requests</h2><p>Available requests matching your area</p></div>
+        <div class="filter-bar">
+          <input type="text" class="search-box" placeholder="Search…" oninput="filterPOpen(this.value)" style="max-width:220px"/>
+          <button class="filter-chip active" onclick="filterPOpenCat('all',this)">All</button>
+          <button class="filter-chip" onclick="filterPOpenCat('Network Infrastructure',this)">Network</button>
+          <button class="filter-chip" onclick="filterPOpenCat('Server Administration',this)">Server</button>
+          <button class="filter-chip" onclick="filterPOpenCat('Hardware & Repair',this)">Hardware</button>
+        </div>
+        <div id="p-open-requests-list" class="requests-list"></div>
+      </div>
+
+      <!-- My Jobs -->
+      <div id="p-tab-my-jobs" style="display:none">
+        <div class="dash-header"><h2>My Jobs</h2><p>Requests you've accepted or are working on</p></div>
+        <div id="p-my-jobs-list" class="requests-list"></div>
+      </div>
+
+      <!-- Profile -->
+      <div id="p-tab-profile" style="display:none">
+        <div class="dash-header"><h2>My Profile</h2></div>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;max-width:500px">
+          <div id="p-profile-info"></div>
+          <div class="divider"></div>
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div>
+              <div style="font-weight:600;font-size:.9rem">Availability</div>
+              <div style="color:var(--muted);font-size:.82rem;margin-top:2px">Toggle your availability status</div>
+            </div>
+            <button id="avail-btn" class="btn-action btn-accept" onclick="toggleAvailability()">Set Available</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     §26 — REQUEST DETAIL MODAL
+══════════════════════════════════════════════════════ -->
+<div id="modal-req" class="modal-overlay">
+  <div class="modal" style="position:relative">
+    <button class="modal-close" onclick="closeModal('modal-req')">✕</button>
+    <div id="modal-req-content"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     §27 — FIREBASE + APP SCRIPTS
+══════════════════════════════════════════════════════ -->
+<!-- Firebase SDK -->
+<script type="module">
+// ════════════════════════════════════════════════
+// §28 — FIREBASE CONFIG
+// TODO: Replace with your Firebase project config
+// Get from: Firebase Console → Project Settings → Your Apps → SDK Setup
+// ════════════════════════════════════════════════
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, collection, doc, setDoc, getDoc, addDoc, updateDoc, query, where, onSnapshot, orderBy, serverTimestamp, getDocs }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// ⚠️ REPLACE THIS WITH YOUR FIREBASE CONFIG
+const firebaseConfig = {
+  apiKey: "AIzaSyD-vvHGNOdKPJVBuKH_87-BaZtt-6uzqZE",
+  authDomain: "it-service-platform.firebaseapp.com",
+  projectId: "it-service-platform",
+  storageBucket: "it-service-platform.firebasestorage.app",
+  messagingSenderId: "37326787755",
+  appId: "1:37326787755:web:cb1cf51e3e339d9b8593ee"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// ════════════════════════════════════════════════
+// §29 — GLOBALS
+// ════════════════════════════════════════════════
+let currentUser = null;
+let currentProfile = null;
+let allRequests = [];
+let allPros = [];
+let rStatusFilter = 'all';
+let pCatFilter = 'all';
+let unsubRequests = null;
+let unsubOpen = null;
+
+// ════════════════════════════════════════════════
+// §30 — PAGE ROUTING
+// ════════════════════════════════════════════════
+window.showPage = function(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  window.scrollTo(0, 0);
+};
+
+// ════════════════════════════════════════════════
+// §31 — TOAST NOTIFICATIONS
+// ════════════════════════════════════════════════
+window.toast = function(msg, type = 'info') {
+  const c = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.innerHTML = `<span>${msg}</span>`;
+  c.appendChild(t);
+  setTimeout(() => { t.style.opacity = '0'; t.style.transition = '.4s'; setTimeout(() => t.remove(), 400); }, 3200);
+};
+
+// ════════════════════════════════════════════════
+// §32 — AUTH STATE LISTENER
+// ════════════════════════════════════════════════
+onAuthStateChanged(auth, async (user) => {
+  const ls = document.getElementById('loading-screen');
+  if (user) {
+    currentUser = user;
+    const snap = await getDoc(doc(db, 'users', user.uid));
+    if (snap.exists()) {
+      currentProfile = snap.data();
+      setupNav(currentProfile);
+      if (currentProfile.role === 'requestor') {
+        showPage('dash-requestor');
+        loadRequestorDash();
+      } else if (currentProfile.role === 'professional') {
+        showPage('dash-professional');
+        loadProfessionalDash();
+      }
+    }
+  } else {
+    currentUser = null;
+    currentProfile = null;
+    document.getElementById('navbar').style.display = 'none';
+    if (!['page-login','page-register','page-register-pro'].some(p => document.getElementById(p)?.classList.contains('active'))) {
+      showPage('landing');
+    }
+  }
+  ls.classList.add('fade-out');
+  setTimeout(() => ls.style.display = 'none', 400);
+});
+
+function setupNav(profile) {
+  const nav = document.getElementById('navbar');
+  nav.style.display = 'flex';
+  document.getElementById('nav-name').textContent = profile.name;
+  const badge = document.getElementById('nav-badge');
+  badge.textContent = profile.role === 'professional' ? 'IT Pro' : 'Requestor';
+  badge.className = 'badge ' + (profile.role === 'professional' ? 'badge-pro' : 'badge-user');
+}
+
+// ════════════════════════════════════════════════
+// §33 — REGISTER
+// ════════════════════════════════════════════════
+window.doRegister = async function(role) {
+  const errId = role === 'requestor' ? 'reg-err' : 'pro-err';
+  const err = document.getElementById(errId);
+  err.classList.remove('show');
+
+  let data = {};
+  if (role === 'requestor') {
+    data = {
+      name: document.getElementById('reg-name').value.trim(),
+      email: document.getElementById('reg-email').value.trim(),
+      phone: document.getElementById('reg-phone').value.trim(),
+      org: document.getElementById('reg-org').value.trim(),
+      city: document.getElementById('reg-city').value.trim(),
+      pass: document.getElementById('reg-pass').value,
+    };
+  } else {
+    data = {
+      name: document.getElementById('pro-name').value.trim(),
+      email: document.getElementById('pro-email').value.trim(),
+      phone: document.getElementById('pro-phone').value.trim(),
+      skill: document.getElementById('pro-skill').value,
+      city: document.getElementById('pro-city').value.trim(),
+      exp: document.getElementById('pro-exp').value,
+      pass: document.getElementById('pro-pass').value,
+    };
+  }
+
+  if (!data.name || !data.email || !data.pass || !data.city) {
+    err.textContent = 'Please fill all required fields.'; err.classList.add('show'); return;
+  }
+  if (data.pass.length < 6) {
+    err.textContent = 'Password must be at least 6 characters.'; err.classList.add('show'); return;
+  }
+
+  try {
+    const cred = await createUserWithEmailAndPassword(auth, data.email, data.pass);
+    const profile = {
+      uid: cred.user.uid,
+      role,
+      name: data.name,
+      email: data.email,
+      phone: data.phone || '',
+      city: data.city.toLowerCase(),
+      cityDisplay: data.city,
+      createdAt: serverTimestamp(),
+      ...(role === 'requestor' ? { org: data.org } : { skill: data.skill, experience: data.exp, available: true })
+    };
+    await setDoc(doc(db, 'users', cred.user.uid), profile);
+    toast('Account created successfully! Welcome to TechLink.', 'success');
+  } catch (e) {
+    err.textContent = e.message; err.classList.add('show');
+  }
+};
+
+// ════════════════════════════════════════════════
+// §34 — LOGIN
+// ════════════════════════════════════════════════
+window.doLogin = async function() {
+  const err = document.getElementById('login-err');
+  err.classList.remove('show');
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  if (!email || !pass) { err.textContent = 'Enter email and password.'; err.classList.add('show'); return; }
+  try {
+    await signInWithEmailAndPassword(auth, email, pass);
+  } catch (e) {
+    err.textContent = 'Invalid email or password.'; err.classList.add('show');
+  }
+};
+
+// ════════════════════════════════════════════════
+// §35 — LOGOUT
+// ════════════════════════════════════════════════
+window.logout = async function() {
+  if (unsubRequests) unsubRequests();
+  if (unsubOpen) unsubOpen();
+  await signOut(auth);
+  showPage('landing');
+};
+
+// ════════════════════════════════════════════════
+// §36 — SUBMIT SERVICE REQUEST
+// ════════════════════════════════════════════════
+window.submitRequest = async function() {
+  const err = document.getElementById('nr-err');
+  err.classList.remove('show');
+  const title = document.getElementById('nr-title').value.trim();
+  const category = document.getElementById('nr-category').value;
+  const priority = document.getElementById('nr-priority').value;
+  const location = document.getElementById('nr-location').value.trim();
+  const desc = document.getElementById('nr-desc').value.trim();
+
+  if (!title || !category || !location || !desc) {
+    err.textContent = 'Please fill all fields.'; err.classList.add('show'); return;
+  }
+
+  try {
+    await addDoc(collection(db, 'requests'), {
+      title, category, priority, location, desc,
+      requestorId: currentUser.uid,
+      requestorName: currentProfile.name,
+      requestorOrg: currentProfile.org || '',
+      requestorCity: currentProfile.city,
+      requestorCityDisplay: currentProfile.cityDisplay,
+      status: 'pending',
+      professionalId: null,
+      professionalName: null,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    });
+    toast('Service request submitted!', 'success');
+    document.getElementById('nr-title').value = '';
+    document.getElementById('nr-category').value = '';
+    document.getElementById('nr-location').value = '';
+    document.getElementById('nr-desc').value = '';
+    rTab('my-requests', null);
+  } catch (e) {
+    err.textContent = e.message; err.classList.add('show');
+  }
+};
+
+// ════════════════════════════════════════════════
+// §37 — REQUESTOR DASHBOARD LOAD
+// ════════════════════════════════════════════════
+function loadRequestorDash() {
+  document.getElementById('r-welcome').textContent = `Welcome back, ${currentProfile.name.split(' ')[0]} 👋`;
+
+  if (unsubRequests) unsubRequests();
+  const q = query(collection(db, 'requests'), where('requestorId', '==', currentUser.uid), orderBy('createdAt', 'desc'));
+  unsubRequests = onSnapshot(q, (snap) => {
+    allRequests = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    updateRStats();
+    renderRRequests();
+    renderRRecent();
+  });
+
+  // Load professionals
+  loadAllPros();
+}
+
+function updateRStats() {
+  document.getElementById('r-stat-pending').textContent = allRequests.filter(r => r.status === 'pending').length;
+  document.getElementById('r-stat-accepted').textContent = allRequests.filter(r => r.status === 'accepted').length;
+  document.getElementById('r-stat-inprog').textContent = allRequests.filter(r => r.status === 'inprogress').length;
+  document.getElementById('r-stat-resolved').textContent = allRequests.filter(r => r.status === 'resolved').length;
+  const cnt = document.getElementById('r-req-count');
+  const active = allRequests.filter(r => ['pending','accepted','inprogress'].includes(r.status)).length;
+  cnt.textContent = active; cnt.style.display = active > 0 ? 'inline' : 'none';
+}
+
+function renderRRequests() {
+  let list = [...allRequests];
+  if (rStatusFilter !== 'all') list = list.filter(r => r.status === rStatusFilter);
+  const s = document.querySelector('#r-tab-my-requests .search-box');
+  if (s && s.value) list = list.filter(r => r.title.toLowerCase().includes(s.value.toLowerCase()));
+  document.getElementById('r-requests-list').innerHTML = list.length ? list.map(reqCard).join('') : emptyState('No requests found');
+}
+
+function renderRRecent() {
+  const recent = allRequests.slice(0, 4);
+  document.getElementById('r-recent-list').innerHTML = recent.length ? recent.map(reqCard).join('') : emptyState('No requests yet. Create your first service request!');
+}
+
+// ════════════════════════════════════════════════
+// §38 — PROFESSIONAL DASHBOARD LOAD
+// ════════════════════════════════════════════════
+function loadProfessionalDash() {
+  document.getElementById('p-welcome').textContent = `Welcome, ${currentProfile.name.split(' ')[0]} 👋`;
+  renderPProfile();
+
+  if (unsubOpen) unsubOpen();
+  // Open requests: pending ones visible to all pros
+  const q = query(collection(db, 'requests'), where('status', '==', 'pending'), orderBy('createdAt', 'desc'));
+  unsubOpen = onSnapshot(q, (snap) => {
+    const open = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    document.getElementById('p-stat-open').textContent = open.length;
+    const cnt = document.getElementById('p-open-count');
+    cnt.textContent = open.length; cnt.style.display = open.length > 0 ? 'inline' : 'none';
+    renderPOpen(open);
+  });
+
+  // My accepted/in-progress/resolved jobs
+  if (unsubRequests) unsubRequests();
+  const q2 = query(collection(db, 'requests'), where('professionalId', '==', currentUser.uid), orderBy('createdAt', 'desc'));
+  unsubRequests = onSnapshot(q2, (snap) => {
+    const jobs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    document.getElementById('p-stat-accepted').textContent = jobs.filter(r => r.status === 'accepted').length;
+    document.getElementById('p-stat-inprog').textContent = jobs.filter(r => r.status === 'inprogress').length;
+    document.getElementById('p-stat-resolved').textContent = jobs.filter(r => r.status === 'resolved').length;
+    renderPJobs(jobs);
+  });
+}
+
+function renderPOpen(requests) {
+  let list = [...requests];
+  if (pCatFilter !== 'all') list = list.filter(r => r.category === pCatFilter);
+  const s = document.querySelector('#p-tab-open-requests .search-box');
+  if (s && s.value) list = list.filter(r => r.title.toLowerCase().includes(s.value.toLowerCase()) || r.requestorCityDisplay?.toLowerCase().includes(s.value.toLowerCase()));
+
+  const html = list.length ? list.map(r => proReqCard(r)).join('') : emptyState('No open requests right now');
+  document.getElementById('p-open-requests-list').innerHTML = html;
+  document.getElementById('p-open-list').innerHTML = list.slice(0,3).map(r => proReqCard(r)).join('') || emptyState('No open requests');
+}
+
+function renderPJobs(jobs) {
+  document.getElementById('p-my-jobs-list').innerHTML = jobs.length ? jobs.map(r => proJobCard(r)).join('') : emptyState('No accepted jobs yet');
+}
+
+function renderPProfile() {
+  const p = currentProfile;
+  document.getElementById('p-profile-info').innerHTML = `
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px">
+      <div class="pro-avatar" style="width:56px;height:56px;font-size:1.3rem">${p.name.charAt(0)}</div>
+      <div>
+        <div style="font-family:var(--font-head);font-weight:800;font-size:1.1rem">${p.name}</div>
+        <div style="color:var(--accent2);font-size:.85rem">${p.skill || 'IT Professional'}</div>
+      </div>
+    </div>
+    <div style="display:grid;gap:10px">
+      <div class="form-group" style="margin:0"><label>Email</label><div style="color:var(--text);font-size:.9rem;padding:4px 0">${p.email}</div></div>
+      <div class="form-group" style="margin:0"><label>Phone</label><div style="color:var(--text);font-size:.9rem;padding:4px 0">${p.phone || '—'}</div></div>
+      <div class="form-group" style="margin:0"><label>Service Area</label><div style="color:var(--text);font-size:.9rem;padding:4px 0">${p.cityDisplay || p.city}</div></div>
+      <div class="form-group" style="margin:0"><label>Experience</label><div style="color:var(--text);font-size:.9rem;padding:4px 0">${p.experience || '—'} years</div></div>
+    </div>
+  `;
+  const btn = document.getElementById('avail-btn');
+  if (p.available) {
+    btn.textContent = 'Set Unavailable'; btn.className = 'btn-action btn-reject';
+  } else {
+    btn.textContent = 'Set Available'; btn.className = 'btn-action btn-accept';
+  }
+}
+
+// ════════════════════════════════════════════════
+// §39 — CARD RENDER HELPERS
+// ════════════════════════════════════════════════
+function reqCard(r) {
+  const time = r.createdAt?.toDate ? r.createdAt.toDate().toLocaleDateString('en-IN', {day:'2-digit',month:'short',year:'numeric'}) : 'Just now';
+  const priColor = {Low:'var(--success)',Medium:'var(--accent)',High:'var(--warn)',Critical:'var(--danger)'}[r.priority] || 'var(--muted)';
+  return `<div class="req-card">
+    <div class="req-card-top">
+      <div>
+        <div class="req-title">${r.title}</div>
+        <div class="req-meta">
+          <span>📍 ${r.requestorCityDisplay || r.location}</span>
+          <span>🗂 ${r.category}</span>
+          <span>📅 ${time}</span>
+          <span style="color:${priColor}">● ${r.priority}</span>
+        </div>
+      </div>
+      <span class="status status-${r.status}">${statusLabel(r.status)}</span>
+    </div>
+    <div class="req-desc">${r.desc}</div>
+    ${r.professionalName ? `<div style="margin-top:10px;font-size:.82rem;color:var(--muted)">Assigned to: <span style="color:var(--accent)">${r.professionalName}</span></div>` : ''}
+    <div class="req-actions">
+      ${r.status === 'pending' ? `<button class="btn-action btn-cancel" onclick="updateStatus('${r.id}','cancelled',null)">Cancel</button>` : ''}
+    </div>
+  </div>`;
+}
+
+function proReqCard(r) {
+  const time = r.createdAt?.toDate ? r.createdAt.toDate().toLocaleDateString('en-IN', {day:'2-digit',month:'short',year:'numeric'}) : 'Just now';
+  const priColor = {Low:'var(--success)',Medium:'var(--accent)',High:'var(--warn)',Critical:'var(--danger)'}[r.priority] || 'var(--muted)';
+  return `<div class="req-card">
+    <div class="req-card-top">
+      <div>
+        <div class="req-title">${r.title}</div>
+        <div class="req-meta">
+          <span>📍 ${r.requestorCityDisplay || r.location}</span>
+          <span>🗂 ${r.category}</span>
+          <span>📅 ${time}</span>
+          <span style="color:${priColor}">● ${r.priority}</span>
+        </div>
+      </div>
+      <span class="status status-pending">Pending</span>
+    </div>
+    <div class="req-desc">${r.desc}</div>
+    <div style="margin-top:10px;font-size:.82rem;color:var(--muted)">Requestor: <b style="color:var(--text)">${r.requestorName}</b> · ${r.requestorOrg || ''}</div>
+    <div class="req-actions">
+      <button class="btn-action btn-accept" onclick="acceptRequest('${r.id}')">✓ Accept Request</button>
+    </div>
+  </div>`;
+}
+
+function proJobCard(r) {
+  const time = r.updatedAt?.toDate ? r.updatedAt.toDate().toLocaleDateString('en-IN', {day:'2-digit',month:'short',year:'numeric'}) : '';
+  return `<div class="req-card">
+    <div class="req-card-top">
+      <div>
+        <div class="req-title">${r.title}</div>
+        <div class="req-meta"><span>📍 ${r.requestorCityDisplay || r.location}</span><span>🗂 ${r.category}</span><span>📅 ${time}</span></div>
+      </div>
+      <span class="status status-${r.status}">${statusLabel(r.status)}</span>
+    </div>
+    <div class="req-desc">${r.desc}</div>
+    <div style="margin-top:10px;font-size:.82rem;color:var(--muted)">Requestor: <b style="color:var(--text)">${r.requestorName}</b></div>
+    <div class="req-actions">
+      ${r.status === 'accepted' ? `<button class="btn-action btn-progress" onclick="updateStatus('${r.id}','inprogress',null)">▶ Mark In Progress</button>` : ''}
+      ${r.status === 'inprogress' ? `<button class="btn-action btn-resolve" onclick="updateStatus('${r.id}','resolved',null)">✓ Mark Resolved</button>` : ''}
+    </div>
+  </div>`;
+}
+
+function statusLabel(s) {
+  return {pending:'Pending',accepted:'Accepted',inprogress:'In Progress',resolved:'Resolved',cancelled:'Cancelled'}[s] || s;
+}
+
+function emptyState(msg) {
+  return `<div class="empty"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><h4>Nothing here</h4><p>${msg}</p></div>`;
+}
+
+// ════════════════════════════════════════════════
+// §40 — STATUS UPDATE
+// ════════════════════════════════════════════════
+window.updateStatus = async function(reqId, status, proId) {
+  try {
+    const upd = { status, updatedAt: serverTimestamp() };
+    if (proId) { upd.professionalId = proId; upd.professionalName = currentProfile.name; }
+    await updateDoc(doc(db, 'requests', reqId), upd);
+    toast(`Status updated to ${statusLabel(status)}`, 'success');
+  } catch (e) { toast('Error: ' + e.message, 'error'); }
+};
+
+window.acceptRequest = async function(reqId) {
+  await updateStatus(reqId, 'accepted', currentUser.uid);
+};
+
+// ════════════════════════════════════════════════
+// §41 — TOGGLE AVAILABILITY
+// ════════════════════════════════════════════════
+window.toggleAvailability = async function() {
+  const newVal = !currentProfile.available;
+  await updateDoc(doc(db, 'users', currentUser.uid), { available: newVal });
+  currentProfile.available = newVal;
+  renderPProfile();
+  toast(newVal ? 'You are now available' : 'You are now unavailable', 'info');
+};
+
+// ════════════════════════════════════════════════
+// §42 — LOAD ALL PROFESSIONALS
+// ════════════════════════════════════════════════
+async function loadAllPros() {
+  const q = query(collection(db, 'users'), where('role', '==', 'professional'));
+  const snap = await getDocs(q);
+  allPros = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  renderProsGrid(allPros);
+}
+
+function renderProsGrid(list) {
+  const el = document.getElementById('r-pros-grid');
+  if (!el) return;
+  el.innerHTML = list.length ? list.map(p => `
+    <div class="pro-card">
+      <div class="pro-avatar">${p.name.charAt(0)}</div>
+      <div class="pro-name">${p.name}</div>
+      <div class="pro-skill">${p.skill || 'IT Professional'}</div>
+      <div class="pro-loc">📍 ${p.cityDisplay || p.city} · ${p.experience || 0} yrs exp</div>
+      <div class="pro-avail ${p.available ? 'on' : 'off'}">${p.available ? 'Available' : 'Unavailable'}</div>
+    </div>`).join('') : emptyState('No professionals found');
+}
+
+// ════════════════════════════════════════════════
+// §43 — FILTER FUNCTIONS
+// ════════════════════════════════════════════════
+window.filterRRequests = function(v) { renderRRequests(); };
+window.filterRByStatus = function(status, el) {
+  rStatusFilter = status;
+  document.querySelectorAll('#r-tab-my-requests .filter-chip').forEach(c => c.classList.remove('active'));
+  if (el) el.classList.add('active');
+  renderRRequests();
+};
+window.filterPros = function(v) {
+  const filtered = allPros.filter(p => p.name.toLowerCase().includes(v.toLowerCase()) || (p.cityDisplay || p.city).toLowerCase().includes(v.toLowerCase()));
+  renderProsGrid(filtered);
+};
+window.filterPOpen = function(v) { /* triggers via onSnapshot data */ };
+window.filterPOpenCat = function(cat, el) {
+  pCatFilter = cat;
+  document.querySelectorAll('#p-tab-open-requests .filter-chip').forEach(c => c.classList.remove('active'));
+  if (el) el.classList.add('active');
+};
+
+// ════════════════════════════════════════════════
+// §44 — TAB SWITCHING
+// ════════════════════════════════════════════════
+window.rTab = function(tab, el) {
+  document.querySelectorAll('#page-dash-requestor .nav-item').forEach(n => n.classList.remove('active'));
+  if (el) el.classList.add('active');
+  else document.querySelectorAll('#page-dash-requestor .nav-item').forEach(n => { if (n.getAttribute('onclick')?.includes(tab)) n.classList.add('active'); });
+  ['overview','my-requests','professionals','new-request'].forEach(t => {
+    const el2 = document.getElementById('r-tab-' + t);
+    if (el2) el2.style.display = t === tab ? 'block' : 'none';
+  });
+};
+
+window.pTab = function(tab, el) {
+  document.querySelectorAll('#page-dash-professional .nav-item').forEach(n => n.classList.remove('active'));
+  if (el) el.classList.add('active');
+  ['overview','open-requests','my-jobs','profile'].forEach(t => {
+    const el2 = document.getElementById('p-tab-' + t);
+    if (el2) el2.style.display = t === tab ? 'block' : 'none';
+  });
+};
+
+// ════════════════════════════════════════════════
+// §45 — MODAL
+// ════════════════════════════════════════════════
+window.closeModal = function(id) { document.getElementById(id).classList.remove('open'); };
+document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); }));
+
+// ════════════════════════════════════════════════
+// §46 — INITIAL LOAD
+// ════════════════════════════════════════════════
+setTimeout(() => {
+  const ls = document.getElementById('loading-screen');
+  ls.classList.add('fade-out');
+  setTimeout(() => ls.style.display = 'none', 400);
+}, 2000);
+
+</script>
+</body>
+</html>
