@@ -1901,7 +1901,7 @@ window.exportReport=()=>{
 };
 
 /* ══ PHASE 4: ADMIN SEND BROADCAST MESSAGE ══ */
-window.sendBroadcast=async()=>{
+/*window.sendBroadcast=async()=>{
   const msg=v('broadcast-msg');
   if(!msg){toast('Enter a message to broadcast','er');return;}
   // Write to a broadcasts collection that all users' dashboards can read
@@ -1913,7 +1913,7 @@ window.sendBroadcast=async()=>{
     toast('Broadcast sent!','ok');
     $('broadcast-msg').value='';
   }catch(e){toast(e.message,'er');}
-};
+};*/
 
 /* ══ PHASE 4: AUTO REFRESH PROS WHEN SETTINGS CHANGE ══ */
 const origSaveSetting=window.saveSetting;
@@ -1928,7 +1928,7 @@ window.saveSetting=async(key,btn)=>{
 };
 
 /* ══ PHASE 4: NOTIFICATION CHECK ON LOAD ══ */
-function phase4Init(){
+/*function phase4Init(){
   checkNotifPrompt();
   // Listen for broadcasts
   if(CP){
@@ -1944,7 +1944,7 @@ function phase4Init(){
       }
     });
   }
-}
+}*/
 
 /* ══ INIT ══ */
 setTimeout(()=>{$('LS').classList.add('hide');setTimeout(()=>$('LS').style.display='none',500);},2500);
