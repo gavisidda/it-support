@@ -279,6 +279,8 @@ select.inp option{background:var(--sf2)}
   <div class="nr">
     <span id="nav-name" style="font-size:.82rem;color:var(--mu)"></span>
     <span id="nav-bdg" class="bdg"></span>
+    <button id="nav-setup-btn" class="bsm" onclick="CM_open('M-setup')" style="display:none" title="Setup Guide">⚙️ Setup</button>
+    <button id="nav-setup-btn" class="bsm" onclick="SP('page-setup')" style="display:none;background:rgba(245,158,11,.12);border-color:rgba(245,158,11,.3);color:var(--wn)">⚙ Setup</button>
     <button class="bsm" onclick="logout()">Sign out</button>
   </div>
 </nav>
@@ -292,10 +294,10 @@ select.inp option{background:var(--sf2)}
       <button class="btn-pri" style="padding:7px 15px;font-size:.81rem" onclick="SP('register')">Get Started</button>
     </div>
   </nav>
-  <div class="ctr" style="padding-top:2px">
+  <div class="ctr" style="padding-top:70px">
     <div class="hero">
       <div class="htag">🌐 IT Service Platform — Full Stack Complete</div>
-      <h2>Connect · Chat · Resolve <em>IT Services</em> Near You</h2>
+      <h1>Connect · Chat · Resolve<br><em>IT Services</em> Near You</h1>
       <p>Real-time messaging, map locations, payment tracking, resolution remarks, Google Sign-In, and full admin control.</p>
       <div class="hbtns">
         <button class="btn-pri" onclick="SP('register')">Request a Service</button>
@@ -433,7 +435,10 @@ select.inp option{background:var(--sf2)}
     </aside>
     <main class="dm">
       <div id="rt-ov">
-        <div class="dh"><h2 id="r-wel">Welcome back 👋</h2><p>Your service request summary</p></div>
+        <div class="dh" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px">
+          <div><h2 id="r-wel">Welcome back 👋</h2><p>Your service request summary</p></div>
+          <input class="sbox" placeholder="🔍 Search all requests…" oninput="globalSearch(this.value)" style="width:220px;padding:9px 13px"/>
+        </div>
         <div class="sg">
           <div class="sc am"><div class="sn" id="rs-p">0</div><div class="sl">Pending</div></div>
           <div class="sc bl"><div class="sn" id="rs-a">0</div><div class="sl">Accepted</div></div>
@@ -649,6 +654,67 @@ select.inp option{background:var(--sf2)}
             <div style="font-family:var(--fh);font-weight:700;font-size:.92rem;margin-bottom:12px">📊 Platform Stats</div>
             <div id="plat-stats" style="font-size:.82rem;color:var(--mu)">Loading…</div>
           </div>
+          <div style="background:var(--cd);border:1px solid var(--bd);border-radius:14px;padding:20px">
+            <div style="font-family:var(--fh);font-weight:700;font-size:.92rem;margin-bottom:13px">📢 Broadcast Message</div>
+            <div class="field">
+              <label>Send to</label>
+              <select id="broadcast-role" class="inp" style="margin-bottom:9px">
+                <option value="all">All Users</option>
+                <option value="requestor">Requestors Only</option>
+                <option value="professional">IT Professionals Only</option>
+              </select>
+            </div>
+            <div class="field"><label>Message</label>
+              <textarea id="broadcast-msg" class="inp" rows="2" placeholder="System-wide announcement or notice…"></textarea></div>
+            <button class="bfull" onclick="sendBroadcast()">📤 Send Broadcast</button>
+          </div>
+          <div style="background:var(--cd);border:1px solid var(--bd);border-radius:14px;padding:20px">
+            <div style="font-family:var(--fh);font-weight:700;font-size:.92rem;margin-bottom:10px">📥 Export Data</div>
+            <p style="color:var(--mu);font-size:.81rem;margin-bottom:12px">Download all service requests as a CSV file for reporting or records.</p>
+            <button class="bfull" onclick="exportReport()">⬇ Download Requests CSV</button>
+          </div>
+          <div style="background:var(--cd);border:1px solid var(--bd);border-radius:14px;padding:20px">
+            <div style="font-family:var(--fh);font-weight:700;font-size:.92rem;margin-bottom:10px">🔒 Firestore Rules (copy &amp; paste)</div>
+            <div style="background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:12px;font-family:monospace;font-size:.72rem;color:var(--ac2);line-height:1.8;overflow-x:auto">
+rules_version = '2';<br>
+service cloud.firestore {<br>
+&nbsp;&nbsp;match /databases/{db}/documents {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;function isAdmin() {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return request.auth != null &amp;&amp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get(/databases/$(db)/documents/users/$(request.auth.uid)).data.role == 'admin';<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;match /users/{uid} {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;allow read: if request.auth != null;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;allow write: if request.auth != null &amp;&amp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(request.auth.uid == uid || isAdmin());<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;match /requests/{rid} {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;allow read: if request.auth != null;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;allow create: if request.auth != null;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;allow update: if request.auth != null &amp;&amp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(isAdmin() || request.auth.uid == resource.data.requestorId<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|| request.auth.uid == resource.data.professionalId<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|| (resource.data.status == 'pending' &amp;&amp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;resource.data.professionalId == null));<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;allow delete: if isAdmin();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;match /messages/{mid} {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;allow read, write: if request.auth != null;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;match /platform/{doc} {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;allow read: if request.auth != null;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;allow write: if isAdmin();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;match /broadcasts/{bid} {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;allow read: if request.auth != null;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;allow write: if isAdmin();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;}<br>
+}<br>
+            </div>
+            <button class="bfull" style="margin-top:10px;background:var(--sf2);color:var(--tx)" onclick="navigator.clipboard.writeText(document.querySelector('#at-settings code')?.textContent||'').then(()=>toast('Copied!','ok'))">📋 Copy Rules</button>
+          </div>
+          </div>
         </div>
       </div>
       <div id="at-map" style="display:none">
@@ -758,6 +824,125 @@ select.inp option{background:var(--sf2)}
   </div>
 </div>
 
+<!-- SETUP GUIDE MODAL -->
+<div id="M-setup" class="mo">
+  <div class="mb mb-lg" style="max-width:700px">
+    <button class="mclose" onclick="CM('M-setup')">✕</button>
+    <h3>⚙️ Firebase Setup Guide</h3>
+    <p class="msub">Copy these rules to fix Google Auth and Chat permissions</p>
+    <div style="display:flex;flex-direction:column;gap:14px">
+
+      <div style="background:var(--cd);border:1px solid rgba(239,68,68,.3);border-radius:12px;padding:18px">
+        <div style="font-family:var(--fh);font-weight:700;color:var(--er);font-size:.9rem;margin-bottom:10px">🔴 Step 1 — Fix Firestore Security Rules</div>
+        <p style="font-size:.81rem;color:var(--mu);margin-bottom:10px">Go to <b>Firebase Console → Firestore → Rules</b> and replace with:</p>
+        <pre style="background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:12px;font-size:.73rem;color:var(--ac2);overflow-x:auto;white-space:pre-wrap">rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAdmin() {
+      return request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Platform settings — any logged-in user can read; only admin writes
+    match /platform/{doc} {
+      allow read: if request.auth != null;
+      allow write: if isAdmin();
+    }
+
+    // User profiles
+    match /users/{userId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null &&
+        (request.auth.uid == userId || isAdmin());
+    }
+
+    // Service Requests
+    match /requests/{requestId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      allow update: if request.auth != null && (
+        isAdmin() ||
+        request.auth.uid == resource.data.requestorId ||
+        request.auth.uid == resource.data.professionalId ||
+        (resource.data.status == 'pending' &&
+         resource.data.professionalId == null &&
+         request.resource.data.professionalId == request.auth.uid)
+      );
+      allow delete: if isAdmin();
+
+      // ✅ MESSAGES SUBCOLLECTION — this fixes the chat permission error
+      match /messages/{msgId} {
+        allow read, write: if request.auth != null;
+      }
+    }
+  }
+}</pre>
+        <button onclick="navigator.clipboard.writeText(document.querySelector('pre').textContent).then(()=>toast('Rules copied!','ok'))" class="btn b-ok" style="margin-top:10px">📋 Copy Rules</button>
+      </div>
+
+      <div style="background:var(--cd);border:1px solid rgba(245,158,11,.3);border-radius:12px;padding:18px">
+        <div style="font-family:var(--fh);font-weight:700;color:var(--wn);font-size:.9rem;margin-bottom:10px">🟡 Step 2 — Enable Google Sign-In</div>
+        <ol style="font-size:.82rem;color:var(--mu);display:flex;flex-direction:column;gap:6px;padding-left:18px">
+          <li>Go to <b>Firebase Console → Authentication → Sign-in method</b></li>
+          <li>Click <b>Google</b> → toggle Enable → choose your project support email → Save</li>
+          <li>Go to <b>Authentication → Settings → Authorized domains</b></li>
+          <li>Add <b>your-username.github.io</b> (or your custom domain)</li>
+        </ol>
+      </div>
+
+      <div style="background:var(--cd);border:1px solid rgba(59,130,246,.25);border-radius:12px;padding:18px">
+        <div style="font-family:var(--fh);font-weight:700;color:var(--ac);font-size:.9rem;margin-bottom:10px">🔵 Step 3 — Create First Admin</div>
+        <ol style="font-size:.82rem;color:var(--mu);display:flex;flex-direction:column;gap:6px;padding-left:18px">
+          <li>Register a normal account through the app</li>
+          <li>Go to <b>Firebase Console → Firestore → users collection</b></li>
+          <li>Find your user document → change <code style="background:var(--sf2);padding:1px 5px;border-radius:4px">role</code> from <code style="background:var(--sf2);padding:1px 5px;border-radius:4px">"requestor"</code> to <code style="background:var(--sf2);padding:1px 5px;border-radius:4px">"admin"</code></li>
+          <li>Log out and back in — you'll see the Admin Dashboard</li>
+          <li>After that, promote others via <b>Admin → Users → Make Admin</b></li>
+        </ol>
+      </div>
+
+      <div style="background:var(--cd);border:1px solid rgba(16,185,129,.25);border-radius:12px;padding:18px">
+        <div style="font-family:var(--fh);font-weight:700;color:var(--ok);font-size:.9rem;margin-bottom:10px">🟢 Required Firestore Indexes</div>
+        <p style="font-size:.81rem;color:var(--mu);margin-bottom:8px">Create these in <b>Firestore → Indexes → Composite</b>:</p>
+        <div style="display:grid;gap:5px;font-size:.77rem">
+          <div style="background:var(--sf2);padding:7px 10px;border-radius:6px;font-family:monospace">requests | requestorId ▲ | createdAt ▼</div>
+          <div style="background:var(--sf2);padding:7px 10px;border-radius:6px;font-family:monospace">requests | status ▲ | createdAt ▼</div>
+          <div style="background:var(--sf2);padding:7px 10px;border-radius:6px;font-family:monospace">requests | professionalId ▲ | createdAt ▼</div>
+        </div>
+        <p style="font-size:.78rem;color:var(--mu);margin-top:8px">💡 Tip: Firebase auto-suggests missing indexes when queries first run — just click the link in your browser console.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GOOGLE AUTH DOMAIN ERROR MODAL -->
+<div id="M-gauth" class="mo">
+  <div class="mb" style="max-width:440px">
+    <button class="mclose" onclick="CM('M-gauth')">✕</button>
+    <div id="M-gauth-body"></div>
+  </div>
+</div>
+
+<!-- NOTIFICATION PERMISSION MODAL -->
+<div id="M-notif" class="mo">
+  <div class="mb" style="max-width:420px">
+    <button class="mclose" onclick="CM('M-notif')">✕</button>
+    <h3>🔔 Enable Notifications</h3>
+    <p class="msub">Get notified when your request is accepted or there's a new message</p>
+    <button class="bfull" onclick="reqNotifPerm()" style="margin-bottom:8px">Enable Notifications</button>
+    <button class="bfull" onclick="CM('M-notif')" style="background:var(--sf2);color:var(--tx)">Not now</button>
+  </div>
+</div>
+
+<!-- QUICK VIEW MODAL (request detail) -->
+<div id="M-view" class="mo">
+  <div class="mb" style="max-width:640px">
+    <button class="mclose" onclick="CM('M-view')">✕</button>
+    <div id="M-view-body"></div>
+  </div>
+</div>
+
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -765,11 +950,15 @@ import{getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut
 import{getFirestore,collection,doc,setDoc,getDoc,getDocs,addDoc,updateDoc,query,where,onSnapshot,orderBy,serverTimestamp,writeBatch}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 /* ══ FIREBASE CONFIG — Replace with yours ══ */
+/*const FC={apiKey:"YOUR_API_KEY",authDomain:"YOUR_PROJECT.firebaseapp.com",projectId:"YOUR_PROJECT_ID",storageBucket:"YOUR_PROJECT.appspot.com",messagingSenderId:"YOUR_SENDER_ID",appId:"YOUR_APP_ID"};*/
 const FC={apiKey:"AIzaSyD-vvHGNOdKPJVBuKH_87-BaZtt-6uzqZE",authDomain:"it-service-platform.firebaseapp.com",projectId:"it-service-platform",storageBucket:"it-service-platform.firebasestorage.app",messagingSenderId:"37326787755",appId:"1:37326787755:web:cb1cf51e3e339d9b8593ee"};
 const fb=initializeApp(FC);
 const auth=getAuth(fb);
 const db=getFirestore(fb);
 const gProvider=new GoogleAuthProvider();
+gProvider.addScope('profile');
+gProvider.addScope('email');
+gProvider.setCustomParameters({prompt:'select_account'});
 
 /* ══ STATE ══ */
 let CU=null,CP=null;
@@ -780,9 +969,11 @@ let lMap=null,lMkr=null,sLat=null,sLng=null,sAddr='';
 let adMap=null,adMkrs=[],adMapFilt='all';
 let chatRId=null,actRId=null,actType='res',payMeth='cash';
 let assignRId=null;
-let settings={showReqPhone:true,showProPhone:true,allowReqReg:true,allowProReg:true};
+let settings={showReqPhone:false,showProPhone:false,allowReqReg:true,allowProReg:true};
 let revealedPh={};
-let googlePendingRole=null;
+// Google auth — flag prevents onAuthStateChanged from routing mid-popup
+let googleSigningIn=false;
+let pendingGoogleRole=null;
 
 /* ══ UTILS ══ */
 const $=id=>document.getElementById(id);
@@ -797,8 +988,9 @@ const payLbl=m=>({cash:'Cash',phonepay:'PhonePe',gpay:'Google Pay',paytm:'Paytm'
 const empty=msg=>`<div class="empty"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><h4>Nothing here</h4><p>${msg}</p></div>`;
 
 window.SP=p=>{document.querySelectorAll('.page').forEach(e=>e.classList.remove('on'));$('page-'+p).classList.add('on');window.scrollTo(0,0);};
-window.toast=(msg,type='in')=>{const c=$('TOAST'),t=document.createElement('div');t.className=`tos ${type}`;t.innerHTML=`<span>${msg}</span>`;c.appendChild(t);setTimeout(()=>{t.style.opacity='0';t.style.transition='.4s';setTimeout(()=>t.remove(),400);},3400);};
 window.CM=id=>{$(id).classList.remove('on');if(id==='M-chat'&&uChat){uChat();uChat=null;}};
+window.CM_open=id=>{$(id).classList.add('on');};
+window.toast=(msg,type='in')=>{const c=$('TOAST'),t=document.createElement('div');t.className=`tos ${type}`;t.innerHTML=`<span>${msg}</span>`;c.appendChild(t);setTimeout(()=>{t.style.opacity='0';t.style.transition='.4s';setTimeout(()=>t.remove(),400);},3400);};
 document.querySelectorAll('.mo').forEach(m=>m.addEventListener('click',e=>{if(e.target===m){if(m.id==='M-chat'&&uChat){uChat();uChat=null;}m.classList.remove('on');}}));
 
 /* ══ SETTINGS ══ */
@@ -826,6 +1018,8 @@ function updatePlatStats(){
 
 /* ══ AUTH STATE ══ */
 onAuthStateChanged(auth,async user=>{
+  // Block routing if Google popup is in progress — it handles its own navigation
+  if(googleSigningIn) return;
   const ls=$('LS');
   if(user){
     CU=user;
@@ -837,8 +1031,8 @@ onAuthStateChanged(auth,async user=>{
       if(CP.role==='admin'){SP('dash-admin');loadAdminDash();}
       else if(CP.role==='requestor'){SP('dash-requestor');loadReqDash();}
       else{SP('dash-professional');loadProDash();}
-    }else if(googlePendingRole===null){
-      // Google user with no profile — show role picker
+    }else{
+      // Authenticated but no profile — show role picker (Google new user)
       SP('role-pick');
     }
   }else{CU=null;CP=null;$('NAV').style.display='none';SP('landing');}
@@ -850,20 +1044,49 @@ function setupNav(p){
   const b=$('nav-bdg');
   b.textContent=p.role==='admin'?'Admin':p.role==='professional'?'IT Pro':'Requestor';
   b.className='bdg '+(p.role==='admin'?'ba':p.role==='professional'?'bp':'bu');
+  // Show setup guide button for admin only
+  const sb=$('nav-setup-btn');
+  if(sb)sb.style.display=p.role==='admin'?'inline-flex':'none';
 }
 
 /* ══ GOOGLE SIGN-IN ══ */
 window.googleSignIn=async(defaultRole)=>{
-  googlePendingRole=defaultRole||null;
+  googleSigningIn=true; // block onAuthStateChanged during popup
   try{
     const result=await signInWithPopup(auth,gProvider);
-    const sn=await getDoc(doc(db,'users',result.user.uid));
-    if(sn.exists()){googlePendingRole=null;return;}// existing user, onAuthStateChanged handles
-    // New Google user — show role picker
-    SP('role-pick');
-  }catch(e){toast('Google sign-in failed: '+e.message,'er');}
+    CU=result.user;
+    const sn=await getDoc(doc(db,'users',CU.uid));
+    if(sn.exists()){
+      // Existing user — route normally
+      CP=sn.data();
+      if(CP.disabled){await signOut(auth);toast('Your account has been disabled.','er');googleSigningIn=false;return;}
+      setupNav(CP);await loadSettings();
+      googleSigningIn=false;
+      if(CP.role==='admin'){SP('dash-admin');loadAdminDash();}
+      else if(CP.role==='requestor'){SP('dash-requestor');loadReqDash();}
+      else{SP('dash-professional');loadProDash();}
+    }else{
+      // New Google user — show role picker with default if provided
+      googleSigningIn=false;
+      SP('role-pick');
+      if(defaultRole){
+        pendingGoogleRole=defaultRole;
+        $('rp-extra').style.display='block';
+        $('rp-pro-fields').style.display=defaultRole==='professional'?'block':'none';
+      }
+    }
+  }catch(e){
+    googleSigningIn=false;
+    if(e.code==='auth/unauthorized-domain'){
+      const domain=location.hostname;
+      const msg=`<div style="text-align:center;padding:18px"><div style="font-size:1.4rem;margin-bottom:10px">🔒</div><div style="font-family:var(--fh);font-weight:700;font-size:.95rem;margin-bottom:8px">Domain Not Authorized</div><div style="color:var(--mu);font-size:.82rem;line-height:1.6;max-width:320px;margin:0 auto 14px">Add <b style="color:var(--ac);font-family:monospace">${domain}</b> to your Firebase Console:<br>Authentication → Settings → Authorized Domains</div><button class="bfull" onclick="CM('M-gauth')" style="max-width:200px;margin:0 auto">Got it</button></div>`;
+      $('M-gauth-body').innerHTML=msg;
+      $('M-gauth').classList.add('on');
+    }else if(e.code!=='auth/popup-closed-by-user'&&e.code!=='auth/cancelled-popup-request'){
+      toast('Google sign-in: '+e.message,'er');
+    }
+  }
 };
-let pendingGoogleRole=null;
 window.completeGoogleSetup=role=>{
   pendingGoogleRole=role;
   $('rp-extra').style.display='block';
@@ -871,25 +1094,30 @@ window.completeGoogleSetup=role=>{
 };
 window.saveGoogleProfile=async()=>{
   const err=$('rperr');err.classList.remove('on');
-  if(!CU){err.textContent='Sign-in error. Try again.';err.classList.add('on');return;}
-  const phone=v('RPX-ph'),city=v('RPX-city'),role=pendingGoogleRole;
-  if(!phone||!city){err.textContent='Fill phone and city.';err.classList.add('on');return;}
+  if(!CU){err.textContent='Session expired. Please sign in again.';err.classList.add('on');return;}
+  const role=pendingGoogleRole;
+  if(!role){err.textContent='Please choose Requestor or IT Pro above.';err.classList.add('on');return;}
+  const phone=v('RPX-ph'),city=v('RPX-city');
+  if(!phone||!city){err.textContent='Phone and city are required.';err.classList.add('on');return;}
   await loadSettings();
   if(role==='requestor'&&settings.allowReqReg===false){err.textContent='Requestor registrations are currently disabled.';err.classList.add('on');return;}
   if(role==='professional'&&settings.allowProReg===false){err.textContent='IT Pro registrations are currently disabled.';err.classList.add('on');return;}
   const skill=role==='professional'?v('RPX-skill'):'';
   const upi=role==='professional'?v('RPX-upi'):'';
-  await setDoc(doc(db,'users',CU.uid),{
-    uid:CU.uid,role,name:CU.displayName||CU.email.split('@')[0],email:CU.email,
-    phone,city:city.toLowerCase(),cityDisplay:city,createdAt:serverTimestamp(),disabled:false,
-    ...(role==='requestor'?{org:''}:{skill,experience:'0',available:true,upiId:upi}),
-    photoURL:CU.photoURL||''
-  });
-  googlePendingRole=null;pendingGoogleRole=null;
-  toast('Profile complete! Welcome.','ok');
-  // re-trigger navigation
-  const sn=await getDoc(doc(db,'users',CU.uid));CP=sn.data();setupNav(CP);await loadSettings();
-  if(CP.role==='requestor'){SP('dash-requestor');loadReqDash();}else{SP('dash-professional');loadProDash();}
+  try{
+    await setDoc(doc(db,'users',CU.uid),{
+      uid:CU.uid,role,name:CU.displayName||CU.email.split('@')[0],email:CU.email,
+      phone,city:city.toLowerCase(),cityDisplay:city,createdAt:serverTimestamp(),disabled:false,
+      photoURL:CU.photoURL||'',
+      ...(role==='requestor'?{org:''}:{skill,experience:'0',available:true,upiId:upi})
+    });
+    pendingGoogleRole=null;
+    toast('Profile complete! Welcome to TechLink.','ok');
+    const sn=await getDoc(doc(db,'users',CU.uid));
+    CP=sn.data();setupNav(CP);await loadSettings();
+    if(CP.role==='requestor'){SP('dash-requestor');loadReqDash();}
+    else{SP('dash-professional');loadProDash();}
+  }catch(e){err.textContent=e.message;err.classList.add('on');}
 };
 
 /* ══ EMAIL REGISTER ══ */
@@ -1004,7 +1232,26 @@ window.openChat=async rid=>{
   $('M-chat').classList.add('on');
   $('ch-msgs').innerHTML='<div style="text-align:center;padding:40px"><div class="ring" style="margin:0 auto"></div></div>';
   if(uChat)uChat();
-  uChat=onSnapshot(query(collection(db,'requests',rid,'messages'),orderBy('createdAt','asc')),sn=>renderMsgs(sn.docs.map(d=>({id:d.id,...d.data()}))));
+  try{
+    const q=query(collection(db,'requests',rid,'messages'),orderBy('createdAt','asc'));
+    uChat=onSnapshot(q,
+      sn=>renderMsgs(sn.docs.map(d=>({id:d.id,...d.data()}))),
+      err=>{
+        // Firestore permission error on messages subcollection
+        $('ch-msgs').innerHTML=`<div class="empty" style="padding:30px">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <h4>Permission Error</h4>
+          <p style="font-size:.8rem;max-width:360px;margin:6px auto 0">Update your <b>Firestore Rules</b> to allow the messages subcollection. See the SETUP guide for the correct rules.</p>
+          <div style="margin-top:10px;padding:9px 13px;background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.18);border-radius:8px;font-family:monospace;font-size:.72rem;text-align:left;color:var(--er)">
+            match /requests/{rid}/messages/{mid} {<br>
+            &nbsp;&nbsp;allow read,write: if request.auth != null;<br>
+            }
+          </div>
+        </div>`;
+        $('ch-msgs').parentElement.querySelector('.cin-w')?.style.setProperty('display','none');
+      }
+    );
+  }catch(e){toast('Chat error: '+e.message,'er');}
 };
 function renderMsgs(msgs){
   const c=$('ch-msgs');
@@ -1029,8 +1276,18 @@ window.sendMsg=async()=>{
   const inp=$('cin'),text=inp.value.trim();
   if(!text||!chatRId)return;
   inp.value='';inp.style.height='auto';
-  try{await addDoc(collection(db,'requests',chatRId,'messages'),{text,type:'message',senderId:CU.uid,senderName:CP.name,senderRole:CP.role,createdAt:serverTimestamp()});}
-  catch(e){toast('Error: '+e.message,'er');}
+  const btn=inp.nextElementSibling;
+  btn.disabled=true;
+  try{
+    await addDoc(collection(db,'requests',chatRId,'messages'),{
+      text,type:'message',
+      senderId:CU.uid,senderName:CP.name,senderRole:CP.role,
+      createdAt:serverTimestamp()
+    });
+    // Mark request as having new activity
+    await updateDoc(doc(db,'requests',chatRId),{lastMsgAt:serverTimestamp(),lastMsgBy:CP.name,lastMsgRole:CP.role});
+  }catch(e){toast('Send failed: '+e.message,'er');}
+  finally{btn.disabled=false;inp.focus();}
 };
 async function sysMsg(rid,text){
   try{await addDoc(collection(db,'requests',rid,'messages'),{text,type:'system',senderId:'system',senderName:'System',senderRole:'system',createdAt:serverTimestamp()});}catch(e){}
@@ -1165,14 +1422,14 @@ function phoneBlock(r,role){
   if(role==='professional'&&['accepted','inprogress','resolved'].includes(r.status)&&settings.showReqPhone&&r.requestorPhone){
     const pid=`ph-${r.id}-r`;
     if(revealedPh[r.id+'_req'])return`<span class="ph-show">📞 ${r.requestorPhone}</span>`;
-    return`<span class="ph-hide" id="${pid}" onclick="revealPh('${r.id}','req','${pid}')">👁 Show Requestor Phone</span>`;
+    return`<span class="ph-hide" id="${pid}" onclick="revealPh('${r.id}','req','${pid}')">👁 Tap to reveal requestor phone</span>`;
   }
   if(role==='requestor'&&r.professionalName&&settings.showProPhone&&r.professionalPhone){
     const pid=`ph-${r.id}-p`;
     if(revealedPh[r.id+'_pro'])return`<span class="ph-show">📞 ${r.professionalPhone}</span>`;
-    return`<span class="ph-hide" id="${pid}" onclick="revealPh('${r.id}','pro','${pid}')">👁 Show IT Pro Phone</span>`;
+    return`<span class="ph-hide" id="${pid}" onclick="revealPh('${r.id}','pro','${pid}')">👁 Tap to reveal IT Pro phone</span>`;
   }
-  if(role==='admin')return`<span class="ph-show" style="font-size:.74rem">📞 ${r.requestorPhone||'—'}</span>`;
+  if(role==='admin')return`<span class="ph-show" style="font-size:.74rem">📞 Req: ${r.requestorPhone||'—'}${r.professionalPhone?' | Pro: '+r.professionalPhone:''}</span>`;
   return'';
 }
 function resBlock(r){
@@ -1180,11 +1437,18 @@ function resBlock(r){
     <div class="rrow"><label>Resolved by</label><span>${esc(r.resolution.resolvedBy)}</span></div>
     <div class="rrow"><label>Work done</label><span>${esc(r.resolution.remarks)}</span></div>
     ${r.resolution.duration?`<div class="rrow"><label>Duration</label><span>${r.resolution.duration}</span></div>`:''}
-    ${r.payment?`<div class="rrow"><label>Payment</label><span>${r.payment.amount>0?`₹${r.payment.amount} via ${payLbl(r.payment.method)} &nbsp;<span class="pay-badge ${r.payment.status==='paid'?'pb-paid':r.payment.status==='waived'?'pb-free':'pb-pend'}">${r.payment.status==='paid'?'Paid ✓':r.payment.status==='waived'?'Free':'Pending'}</span>`:'🆓 Waived / Free'}${r.payment.txnRef?` · <span style="font-size:.75rem;color:var(--mu)">Ref: ${esc(r.payment.txnRef)}</span>`:''}</span></div>`:''}</div>`;
+    ${r.payment?`<div class="rrow"><label>Payment</label><span>${r.payment.amount>0?`₹${r.payment.amount} via ${payLbl(r.payment.method)} &nbsp;<span class="pay-badge ${r.payment.status==='paid'?'pb-paid':r.payment.status==='waived'?'pb-free':'pb-pend'}">${r.payment.status==='paid'?'Paid ✓':r.payment.status==='waived'?'Free':'Pending'}</span>`:'🆓 Waived / Free'}${r.payment.txnRef?` · <span style="font-size:.74rem;color:var(--mu)">Ref: ${esc(r.payment.txnRef)}</span>`:''}</span></div>`:''}</div>`;
   if(r.cancellation)return`<div class="can-card"><h4>❌ Cancelled</h4>
     <div class="rrow"><label>Reason</label><span>${esc(r.cancellation.reason)}</span></div>
     <div class="rrow"><label>By</label><span>${esc(r.cancellation.cancelledBy)} (${r.cancellation.cancelledByRole})</span></div></div>`;
   return'';
+}
+function lastMsgLine(r){
+  if(!r.lastMsgAt||!r.lastMsgBy)return'';
+  const who=r.lastMsgRole==='professional'?'IT Pro':r.lastMsgRole==='admin'?'Admin':'Requestor';
+  return`<div style="margin-top:8px;font-size:.73rem;color:var(--mu);display:flex;align-items:center;gap:5px;padding:5px 9px;background:rgba(6,182,212,.06);border-radius:6px;border:1px solid rgba(6,182,212,.14)">
+    💬 Last msg: <b style="color:var(--tx)">${esc(r.lastMsgBy)}</b> (${who}) · ${fmtT(r.lastMsgAt)}
+  </div>`;
 }
 function card(r,role){
   const canChat=['accepted','inprogress','resolved','cancelled'].includes(r.status);
@@ -1204,17 +1468,23 @@ function card(r,role){
       <span class="st ${stCls(r.status)}">${stLbl(r.status)}</span>
     </div>
     <div class="rd">${esc(r.desc)}</div>
-    ${r.address?`<div style="margin-top:7px;font-size:.74rem;color:var(--mu)">📍 ${r.address.split(',').slice(0,3).join(',')}</div>`:''}
+    ${r.address?`<div style="margin-top:6px;font-size:.74rem;color:var(--mu)">📍 ${r.address.split(',').slice(0,3).join(',')}</div>`:''}
     ${r.professionalName?`<div style="margin-top:6px;font-size:.78rem;color:var(--mu)">👨‍💻 Pro: <span style="color:var(--ac)">${r.professionalName}</span></div>`:''}
     ${ph?`<div style="margin-top:8px">${ph}</div>`:''}
+    ${canChat||isAdm?lastMsgLine(r):''}
     ${resBlock(r)}
     <div class="ra">
       ${r.lat?`<button class="btn b-ac" onclick="openMapFull('${r.id}')">🗺 Map</button>`:''}
       ${canChat||isAdm?`<button class="btn b-c2" onclick="openChat('${r.id}')">💬 Chat</button>`:''}
-      ${isAdm?`<button class="btn b-pu" onclick="openAssign('${r.id}')">⟳ Reassign</button>`:'' }
+      ${isAdm?`<button class="btn b-pu" onclick="openAssign('${r.id}')">⟳ Reassign</button>`:''}
       ${isAdm&&r.status!=='resolved'&&r.status!=='cancelled'?`<button class="btn b-ok" onclick="aForceSt('${r.id}','resolved')">✓ Resolve</button><button class="btn b-er" onclick="aForceSt('${r.id}','cancelled')">✕ Cancel</button>`:''}
-      ${r.status==='pending'&&(role==='requestor')?`<button class="btn b-er" onclick="openActModal('${r.id}','can')">✕ Cancel</button>`:''}
+      ${r.status==='pending'&&role==='requestor'?`<button class="btn b-er" onclick="openActModal('${r.id}','can')">✕ Cancel</button>`:''}
+    <div style="display:flex;gap:6px;margin-top:6px">
+      <button class="btn b-nt" style="font-size:.71rem" onclick="openQuickView('${r.id}','${role||CP?.role||''}')">👁 Details</button>
+      ${role==='requestor'&&r.status==='resolved'&&!r.rating?`<button class="btn b-wn" style="font-size:.71rem" onclick="openRating('${r.id}')">⭐ Rate</button>`:''}
+      ${r.rating?`<span style="font-size:.74rem;color:var(--wn)">${'⭐'.repeat(r.rating)} (${r.rating}/5)</span>`:''}
     </div>
+    ${activityFeed(r)}
   </div>`;
 }
 function openCard(r){
@@ -1233,6 +1503,7 @@ function openCard(r){
       ${r.lat?`<button class="btn b-ac" onclick="openMapFull('${r.id}')">🗺 Location</button>`:''}
       <button class="btn b-ok" onclick="acceptReq('${r.id}')">✓ Accept</button>
     </div>
+    ${activityFeed(r)}
   </div>`;
 }
 function jobCard(r){
@@ -1252,6 +1523,7 @@ function jobCard(r){
     ${resBlock(r)}
     <div class="ra">
       ${r.lat?`<button class="btn b-ac" onclick="openMapFull('${r.id}')">🗺 Navigate</button>`:''}
+      <button class="btn b-nt" style="font-size:.71rem" onclick="openQuickView('${r.id}','professional')">👁 Details</button>
       <button class="btn b-c2" onclick="openChat('${r.id}')">💬 Chat</button>
       ${r.status==='accepted'?`<button class="btn b-c2" onclick="updSt('${r.id}','inprogress',null)">▶ Start Work</button>`:''}
       ${r.status==='inprogress'?`<button class="btn b-ok" onclick="openActModal('${r.id}','res')">✓ Resolve</button>`:''}
@@ -1329,6 +1601,7 @@ function renderPProf(){
       <div><span style="color:var(--mu)">City: </span>${p.cityDisplay||p.city}</div>
       <div><span style="color:var(--mu)">Experience: </span>${p.experience||'—'} years</div>
       ${p.upiId?`<div><span style="color:var(--mu)">UPI: </span><span style="font-family:monospace;color:var(--ac2)">${p.upiId}</span></div>`:''}
+      ${p.avgRating?`<div><span style="color:var(--mu)">Rating: </span><span style="color:var(--wn)">⭐ ${p.avgRating}/5</span> <span style="color:var(--mu);font-size:.8rem">(${p.totalRatings} reviews)</span></div>`:''}
     </div>`;
   $('avail-tgl').classList.toggle('on',!!p.available);
 }
@@ -1462,7 +1735,10 @@ function renderPros(list){
     <div class="plc">📍 ${p.cityDisplay||p.city} · ${p.experience||0} yrs</div>
     <div class="plc">📞 ${p.phone||'—'}</div>
     ${p.upiId?`<div class="plc" style="font-family:monospace;color:var(--ac2);font-size:.74rem">💳 ${p.upiId}</div>`:''}
-    <div class="pavl ${p.available?'on':'off'}">${p.available?'Available':'Unavailable'}</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:5px">
+      <div class="pavl ${p.available?'on':'off'}">${p.available?'Available':'Unavailable'}</div>
+      ${p.avgRating?`<span style="font-size:.74rem;color:var(--wn)">⭐ ${p.avgRating} <span style="color:var(--mu)">(${p.totalRatings||0})</span></span>`:''}
+    </div>
   </div>`).join(''):empty('No professionals found');
 }
 window.pF=t=>renderPros(allPros.filter(p=>p.name.toLowerCase().includes(t.toLowerCase())||(p.cityDisplay||p.city||'').toLowerCase().includes(t.toLowerCase())));
@@ -1488,8 +1764,192 @@ window.aTab=(tab,el)=>{
   if(tab==='settings'){loadSettings();}
 };
 
+
+/* ══ PHASE 4: SEARCH ALL REQUESTS (requestor) ══ */
+window.globalSearch = q => {
+  if(!q){$('r-mylist').innerHTML='';rRender();return;}
+  const lq=q.toLowerCase();
+  const res=[...aReqs].filter(r=>r.title.toLowerCase().includes(lq)||r.category.toLowerCase().includes(lq)||r.desc.toLowerCase().includes(lq)||(r.location||'').toLowerCase().includes(lq));
+  $('r-mylist').innerHTML=res.length?res.map(r=>card(r,'requestor')).join(''):empty('No results for "'+q+'"');
+};
+
+/* ══ PHASE 4: NOTIFICATION SUPPORT ══ */
+window.reqNotifPerm=async()=>{
+  CM('M-notif');
+  if(!('Notification' in window)){toast('Notifications not supported in this browser','in');return;}
+  const perm=await Notification.requestPermission();
+  if(perm==='granted'){toast('🔔 Notifications enabled!','ok');}
+  else{toast('Notifications blocked — enable in browser settings','in');}
+};
+function checkNotifPrompt(){
+  if('Notification' in window && Notification.permission==='default'){
+    setTimeout(()=>$('M-notif').classList.add('on'),4000);
+  }
+}
+function showBrowserNotif(title,body){
+  if('Notification' in window && Notification.permission==='granted'){
+    new Notification('TechLink — '+title,{body,icon:'https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg'});
+  }
+}
+
+/* ══ PHASE 4: QUICK VIEW MODAL ══ */
+window.openQuickView=(rid,role)=>{
+  const r=[...aReqs,...openReqs,...myJobs,...adminReqs].find(x=>x.id===rid);
+  if(!r)return;
+  const ph=phoneBlock(r,role||CP.role);
+  $('M-view-body').innerHTML=`
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+      <div>
+        <h3 style="font-family:var(--fh);font-size:1.1rem;font-weight:800;margin-bottom:4px">${esc(r.title)}${r.createdByAdmin?'<span class="admin-tag">Admin</span>':''}</h3>
+        <div style="color:var(--mu);font-size:.78rem;display:flex;gap:10px;flex-wrap:wrap">
+          <span>📍 ${r.requestorCityDisplay||r.location}</span>
+          <span>🗂 ${r.category}</span>
+          <span>📅 ${fmtD(r.createdAt)}</span>
+          <span style="color:${pClr(r.priority)}">● ${r.priority}</span>
+        </div>
+      </div>
+      <span class="st ${stCls(r.status)}">${stLbl(r.status)}</span>
+    </div>
+    <div style="font-size:.84rem;color:var(--mu);line-height:1.6;margin-bottom:12px">${esc(r.desc)}</div>
+    ${r.address?`<div style="font-size:.76rem;color:var(--mu);margin-bottom:8px">📍 ${r.address}</div>`:''}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:.82rem;margin-bottom:14px">
+      <div style="padding:9px;background:var(--sf2);border-radius:8px"><div style="color:var(--mu);font-size:.73rem;margin-bottom:3px">Requestor</div><b>${esc(r.requestorName)}</b>${r.requestorOrg?'<div style="color:var(--mu);font-size:.74rem">'+esc(r.requestorOrg)+'</div>':''}</div>
+      <div style="padding:9px;background:var(--sf2);border-radius:8px"><div style="color:var(--mu);font-size:.73rem;margin-bottom:3px">IT Professional</div><b>${r.professionalName?esc(r.professionalName):'<span style="color:var(--mu)">Unassigned</span>'}</b></div>
+    </div>
+    ${ph?`<div style="margin-bottom:12px">${ph}</div>`:''}
+    ${resBlock(r)}
+    <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:14px;padding-top:13px;border-top:1px solid var(--bd)">
+      ${r.lat?`<button class="btn b-ac" onclick="CM('M-view');openMapFull('${r.id}')">🗺 Map</button>`:''}
+      ${['accepted','inprogress','resolved','cancelled'].includes(r.status)?`<button class="btn b-c2" onclick="CM('M-view');openChat('${r.id}')">💬 Chat</button>`:''}
+      ${CP.role==='admin'?`<button class="btn b-pu" onclick="CM('M-view');openAssign('${r.id}')">⟳ Reassign</button>`:''}
+      ${CP.role==='professional'&&r.status==='accepted'?`<button class="btn b-c2" onclick="CM('M-view');updSt('${r.id}','inprogress',null)">▶ Start</button>`:''}
+      ${CP.role==='professional'&&r.status==='inprogress'?`<button class="btn b-ok" onclick="CM('M-view');openActModal('${r.id}','res')">✓ Resolve</button>`:''}
+    </div>`;
+  $('M-view').classList.add('on');
+};
+
+/* ══ PHASE 4: RATING SYSTEM ══ */
+window.openRating=async rid=>{
+  const r=aReqs.find(x=>x.id===rid);
+  if(!r||r.status!=='resolved'||r.rating)return;
+  $('M-view-body').innerHTML=`
+    <h3>⭐ Rate this Service</h3>
+    <p class="msub">How was your experience with ${esc(r.professionalName||'the IT Professional')}?</p>
+    <div id="star-row" style="display:flex;gap:8px;justify-content:center;margin:20px 0">
+      ${[1,2,3,4,5].map(n=>`<button onclick="setRating(${n})" id="star-${n}" style="font-size:2rem;background:none;border:none;cursor:pointer;transition:.2s;filter:grayscale(1)" title="${n} star${n>1?'s':''}">⭐</button>`).join('')}
+    </div>
+    <div class="field"><label>Comments (optional)</label><textarea id="rating-comment" class="inp" rows="2" placeholder="Describe your experience…"></textarea></div>
+    <div id="rating-err" class="em"></div>
+    <button class="bfull" onclick="submitRating('${rid}')">Submit Rating</button>`;
+  $('M-view').classList.add('on');
+};
+let chosenRating=0;
+window.setRating=n=>{
+  chosenRating=n;
+  for(let i=1;i<=5;i++) $('star-'+i).style.filter=i<=n?'none':'grayscale(1)';
+};
+window.submitRating=async rid=>{
+  const err=$('rating-err');err.classList.remove('on');
+  if(!chosenRating){err.textContent='Please select a star rating.';err.classList.add('on');return;}
+  const comment=v('rating-comment');
+  try{
+    await updateDoc(doc(db,'requests',rid),{rating:chosenRating,ratingComment:comment,ratedAt:serverTimestamp()});
+    // Update professional's average rating
+    const r=aReqs.find(x=>x.id===rid);
+    if(r?.professionalId){
+      const allJobsSnap=await getDocs(query(collection(db,'requests'),where('professionalId','==',r.professionalId),where('status','==','resolved')));
+      const ratings=allJobsSnap.docs.map(d=>d.data().rating).filter(Boolean);
+      const avg=ratings.length?Math.round((ratings.reduce((a,b)=>a+b,0)/ratings.length)*10)/10:0;
+      await updateDoc(doc(db,'users',r.professionalId),{avgRating:avg,totalRatings:ratings.length});
+    }
+    toast('⭐ Rating submitted! Thank you.','ok');CM('M-view');chosenRating=0;
+  }catch(e){err.textContent=e.message;err.classList.add('on');}
+};
+
+/* ══ PHASE 4: REAL-TIME UNREAD BADGE ON CHAT ══ */
+let unreadCounts={};
+async function loadUnreadCounts(reqIds){
+  // Simple unread tracking — count messages after lastReadAt
+  // In production you'd store per-user read positions
+}
+
+/* ══ PHASE 4: REQUEST ACTIVITY FEED ══ */
+function activityFeed(r){
+  if(!r.lastMsgAt) return '';
+  return`<div style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;background:rgba(6,182,212,.08);border:1px solid rgba(6,182,212,.17);font-size:.7rem;color:var(--ac2)">💬 ${r.lastMsgBy?esc(r.lastMsgBy)+' messaged':'New message'} · ${fmtD(r.lastMsgAt)}</div>`;
+}
+
+/* ══ PHASE 4: EXPORT REPORT (admin) ══ */
+window.exportReport=()=>{
+  const rows=[['ID','Title','Category','Priority','Status','Requestor','Org','City','Professional','Payment','Amount','Date']];
+  adminReqs.forEach(r=>{
+    rows.push([
+      r.id,r.title,r.category,r.priority,stLbl(r.status),
+      r.requestorName,r.requestorOrg||'',r.requestorCityDisplay||r.requestorCity,
+      r.professionalName||'',
+      r.payment?payLbl(r.payment.method):'',
+      r.payment?.amount||'',
+      fmtD(r.createdAt)
+    ]);
+  });
+  const csv=rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download='techlink-requests-'+new Date().toISOString().slice(0,10)+'.csv';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+  toast('Report downloaded!','ok');
+};
+
+/* ══ PHASE 4: ADMIN SEND BROADCAST MESSAGE ══ */
+window.sendBroadcast=async()=>{
+  const msg=v('broadcast-msg');
+  if(!msg){toast('Enter a message to broadcast','er');return;}
+  // Write to a broadcasts collection that all users' dashboards can read
+  try{
+    await addDoc(collection(db,'broadcasts'),{
+      message:msg,sentBy:CP.name,sentAt:serverTimestamp(),
+      targetRole:v('broadcast-role')||'all'
+    });
+    toast('Broadcast sent!','ok');
+    $('broadcast-msg').value='';
+  }catch(e){toast(e.message,'er');}
+};
+
+/* ══ PHASE 4: AUTO REFRESH PROS WHEN SETTINGS CHANGE ══ */
+const origSaveSetting=window.saveSetting;
+window.saveSetting=async(key,btn)=>{
+  await origSaveSetting(key,btn);
+  // Force re-render cards to reflect new phone visibility setting
+  if(key==='showReqPhone'||key==='showProPhone'){
+    revealedPh={};// reset reveals on setting change
+    if(CP.role==='requestor')rRender();
+    if(CP.role==='professional'){$('p-joblist').innerHTML=myJobs.map(r=>jobCard(r)).join('');}
+  }
+};
+
+/* ══ PHASE 4: NOTIFICATION CHECK ON LOAD ══ */
+function phase4Init(){
+  checkNotifPrompt();
+  // Listen for broadcasts
+  if(CP){
+    onSnapshot(query(collection(db,'broadcasts'),orderBy('sentAt','desc')),sn=>{
+      const latest=sn.docs[0]?.data();
+      if(latest&&(latest.targetRole==='all'||latest.targetRole===CP.role)){
+        const key='bc_'+sn.docs[0].id;
+        if(!sessionStorage.getItem(key)){
+          sessionStorage.setItem(key,'1');
+          // Show broadcast toast after small delay
+          setTimeout(()=>toast('📢 '+latest.message,'in'),500);
+        }
+      }
+    });
+  }
+}
+
 /* ══ INIT ══ */
 setTimeout(()=>{$('LS').classList.add('hide');setTimeout(()=>$('LS').style.display='none',500);},2500);
+// Phase 4 init runs after auth state is settled
+setTimeout(()=>{ if(CP) phase4Init(); },3500);
 </script>
 </body>
 </html>
