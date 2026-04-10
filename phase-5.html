@@ -1,0 +1,2286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>TechLink – IT Service Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<!-- Firebase SDK (loaded via module script below) -->
+<style>
+:root{--bg:#0a0e1a;--sf:#111827;--sf2:#1a2236;--bd:#1e2d47;--ac:#3b82f6;--ac2:#06b6d4;--ok:#10b981;--wn:#f59e0b;--er:#ef4444;--tx:#e2e8f0;--mu:#64748b;--cd:#131e30;--r:12px;--fh:'Syne',sans-serif;--fb:'DM Sans',sans-serif}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--tx);font-family:var(--fb);font-size:15px;line-height:1.6;min-height:100vh;overflow-x:hidden}
+button,input,select,textarea{font-family:var(--fb)}button{cursor:pointer}input,select,textarea{cursor:text}
+a{color:var(--ac);text-decoration:none}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 60% at 20% -10%,rgba(59,130,246,.1) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 80% 110%,rgba(6,182,212,.07) 0%,transparent 55%);pointer-events:none;z-index:0}
+/* LOADING */
+#LS{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;transition:opacity .5s}
+#LS.hide{opacity:0;pointer-events:none}
+.logo{font-family:var(--fh);font-size:2rem;font-weight:800;background:linear-gradient(135deg,var(--ac),var(--ac2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.ring{width:42px;height:42px;border:3px solid var(--bd);border-top-color:var(--ac);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* NAVBAR */
+#NAV{position:fixed;top:0;left:0;right:0;z-index:300;background:rgba(10,14,26,.94);backdrop-filter:blur(18px);border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:60px}
+.nb{font-family:var(--fh);font-weight:800;font-size:1.15rem;background:linear-gradient(135deg,var(--ac),var(--ac2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;display:flex;align-items:center;gap:8px}
+.nr{display:flex;align-items:center;gap:10px;font-size:.84rem}
+.bdg{padding:3px 10px;border-radius:20px;font-size:.7rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase}
+.ba{background:rgba(245,158,11,.14);color:var(--wn);border:1px solid rgba(245,158,11,.28)}
+.bp{background:rgba(16,185,129,.14);color:var(--ok);border:1px solid rgba(16,185,129,.28)}
+.bu{background:rgba(59,130,246,.14);color:var(--ac);border:1px solid rgba(59,130,246,.28)}
+.bsm{padding:6px 13px;border-radius:8px;border:1px solid var(--bd);background:var(--sf);color:var(--tx);font-size:.81rem;transition:.2s}
+.bsm:hover{border-color:var(--ac);color:var(--ac)}
+/* PAGES */
+.page{display:none;min-height:100vh;padding-top:60px;position:relative;z-index:1}
+.page.on{display:block;animation:fi .3s ease}
+@keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.ctr{max-width:1120px;margin:0 auto;padding:34px 22px}
+.csm{max-width:520px;margin:0 auto;padding:34px 22px}
+/* LANDING */
+.hero{text-align:center;padding:76px 20px 52px}
+.htag{display:inline-block;padding:4px 15px;border-radius:20px;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.22);color:var(--ac);font-size:.77rem;font-weight:500;letter-spacing:.06em;margin-bottom:20px}
+.hero h1{font-family:var(--fh);font-size:clamp(1.9rem,5vw,3.5rem);font-weight:800;line-height:1.1;margin-bottom:16px}
+.hero h1 em{font-style:normal;background:linear-gradient(135deg,var(--ac) 20%,var(--ac2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{color:var(--mu);font-size:.98rem;max-width:540px;margin:0 auto 32px}
+.hbtns{display:flex;gap:11px;justify-content:center;flex-wrap:wrap}
+.btn-pri{padding:11px 24px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--ac),#2563eb);color:#fff;font-weight:600;font-size:.92rem;transition:.2s;box-shadow:0 0 22px rgba(59,130,246,.26)}
+.btn-pri:hover{transform:translateY(-2px);box-shadow:0 0 32px rgba(59,130,246,.4)}
+.btn-out{padding:11px 24px;border-radius:10px;border:1px solid var(--bd);background:transparent;color:var(--tx);font-weight:500;font-size:.92rem;transition:.2s}
+.btn-out:hover{border-color:var(--ac);color:var(--ac)}
+/* Google signin button */
+.btn-google{display:flex;align-items:center;gap:10px;width:100%;padding:11px 16px;border-radius:10px;border:1px solid var(--bd);background:var(--sf2);color:var(--tx);font-size:.9rem;font-weight:500;transition:.2s;justify-content:center;margin-bottom:8px}
+.btn-google:hover{border-color:var(--ac);background:rgba(59,130,246,.06)}
+.btn-google img{width:18px;height:18px;flex-shrink:0}
+.or-sep{display:flex;align-items:center;gap:10px;margin:12px 0;color:var(--mu);font-size:.8rem}
+.or-sep::before,.or-sep::after{content:'';flex:1;height:1px;background:var(--bd)}
+.fg{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:50px}
+.fc{background:var(--cd);border:1px solid var(--bd);border-radius:var(--r);padding:22px;transition:.3s;position:relative;overflow:hidden}
+.fc::before{content:'';position:absolute;inset:0;opacity:0;background:linear-gradient(135deg,rgba(59,130,246,.1),transparent);transition:.3s}
+.fc:hover::before{opacity:1}
+.fc:hover{border-color:var(--ac);transform:translateY(-3px)}
+.fc-ic{font-size:1.5rem;margin-bottom:12px}
+.fc h3{font-family:var(--fh);font-weight:700;font-size:.92rem;margin-bottom:5px}
+.fc p{color:var(--mu);font-size:.81rem}
+/* AUTH CARD */
+.ac{background:var(--cd);border:1px solid var(--bd);border-radius:16px;padding:34px 30px}
+.ac h2{font-family:var(--fh);font-size:1.5rem;font-weight:800;margin-bottom:4px}
+.ac .sub{color:var(--mu);font-size:.85rem;margin-bottom:22px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:.79rem;font-weight:500;color:var(--mu);margin-bottom:5px;letter-spacing:.03em}
+.inp{width:100%;padding:10px 12px;background:var(--sf2);border:1px solid var(--bd);border-radius:8px;color:var(--tx);font-size:.9rem;outline:none;transition:.2s}
+.inp:focus{border-color:var(--ac);box-shadow:0 0 0 3px rgba(59,130,246,.1)}
+.inp::placeholder{color:var(--mu)}
+select.inp option{background:var(--sf2)}
+.bfull{width:100%;padding:11px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--ac),#2563eb);color:#fff;font-weight:600;font-size:.92rem;transition:.2s;margin-top:4px}
+.bfull:hover{opacity:.9;transform:translateY(-1px)}
+.al{text-align:center;margin-top:14px;font-size:.82rem;color:var(--mu)}
+.em{color:var(--er);font-size:.79rem;margin-top:6px;display:none}
+.em.on{display:block}
+/* ═══ DASH LAYOUT ═══ */
+.dl{display:grid;grid-template-columns:222px 1fr;min-height:calc(100vh - 60px)}
+@media(max-width:780px){.dl{grid-template-columns:1fr}}
+
+/* Desktop sidebar */
+.ds{background:var(--sf);border-right:1px solid var(--bd);padding:18px 13px;position:sticky;top:60px;height:calc(100vh - 60px);overflow-y:auto;z-index:10}
+@media(max-width:780px){.ds{display:none}}
+
+/* ── MOBILE DRAWER ── */
+#mob-drawer{position:fixed;top:0;left:0;bottom:0;width:280px;background:var(--sf);z-index:800;transform:translateX(-100%);transition:transform .3s cubic-bezier(.4,0,.2,1);padding:72px 14px 100px;overflow-y:auto;box-shadow:4px 0 24px rgba(0,0,0,.5)}
+#mob-drawer.open{transform:translateX(0)}
+#mob-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:799;display:none;backdrop-filter:blur(2px)}
+#mob-overlay.open{display:block}
+.mob-drawer-close{position:absolute;top:16px;right:16px;background:none;border:none;color:var(--mu);font-size:1.4rem;cursor:pointer;padding:6px;border-radius:8px}
+.mob-drawer-close:hover{background:var(--sf2);color:var(--tx)}
+/* ── MOB HAMBURGER IN NAV ── */
+#mob-menu-btn{display:none;background:none;border:none;color:var(--tx);font-size:1.3rem;padding:6px 8px;border-radius:8px;cursor:pointer}
+#mob-menu-btn:hover{background:var(--sf2)}
+@media(max-width:780px){#mob-menu-btn{display:flex;align-items:center;}}
+
+/* ── BOTTOM TAB BAR (mobile) ── */
+#mob-tabbar{display:none;position:fixed;bottom:0;left:0;right:0;z-index:500;background:rgba(17,24,39,.97);backdrop-filter:blur(16px);border-top:1px solid var(--bd);padding:0;height:60px;grid-auto-columns:1fr;align-items:stretch}
+@media(max-width:780px){#mob-tabbar{display:grid}}
+.mob-tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:none;background:none;color:var(--mu);font-size:.6rem;font-weight:600;cursor:pointer;padding:8px 4px;transition:.2s;position:relative;letter-spacing:.02em}
+.mob-tab.on{color:var(--ac)}
+.mob-tab svg{width:20px;height:20px;flex-shrink:0}
+.mob-tab .mob-cnt{position:absolute;top:5px;right:calc(50% - 14px);background:var(--er);color:#fff;border-radius:20px;font-size:.58rem;padding:1px 5px;font-weight:700;min-width:16px;text-align:center}
+@media(max-width:780px){.dm{padding:16px 14px 76px}}/* extra bottom padding for tab bar */
+
+/* Sidebar nav items (same in drawer) */
+.dsl{font-size:.67rem;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.1em;padding:0 9px;margin:12px 0 5px}
+.ni{display:flex;align-items:center;gap:9px;padding:10px 11px;border-radius:9px;color:var(--mu);font-size:.85rem;font-weight:500;cursor:pointer;transition:.2s;margin-bottom:3px;border:none;background:none;width:100%;text-align:left}
+.ni:hover,.ni.on{background:rgba(59,130,246,.09);color:var(--ac)}
+.ni svg{flex-shrink:0;width:16px;height:16px}
+.ni .cnt{margin-left:auto;color:#fff;border-radius:20px;font-size:.66rem;padding:1px 6px;font-weight:700}
+.cnt-ac{background:var(--ac)}.cnt-er{background:var(--er)}
+.dm{padding:28px 24px;overflow-y:auto}
+
+/* ── MOBILE RESPONSIVE FIXES ── */
+@media(max-width:780px){
+  /* Stats grid 2 cols on mobile */
+  .sg{grid-template-columns:repeat(2,1fr);gap:9px}
+  .sn{font-size:1.55rem}
+  /* Filter bar scrollable */
+  .fb{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .fb::-webkit-scrollbar{display:none}
+  .fch{flex-shrink:0}
+  /* Cards full width */
+  .rc{padding:14px}
+  .rct{gap:7px}
+  .rtl{font-size:.86rem}
+  /* Auth card padding */
+  .ac{padding:26px 20px}
+  /* Pros grid 1 col */
+  .pgrid{grid-template-columns:1fr}
+  /* Map smaller */
+  #lmap{height:220px}
+  /* Admin table horizontal scroll */
+  .tw{border-radius:8px}
+  /* Modal full screen */
+  .mb{max-height:96vh;border-radius:12px;padding:22px 18px}
+  .mb-chat{height:95vh;max-height:95vh;border-radius:12px 12px 0 0;position:fixed;bottom:0;left:0;right:0;max-width:100%}
+  .mo{padding:0;align-items:flex-end}
+  .mo.on .mb-chat{animation:slideup .28s ease}
+  @keyframes slideup{from{transform:translateY(100%)}to{transform:translateY(0)}}
+  /* Hero smaller */
+  .hero{padding:52px 16px 36px}
+  /* Landing nav */
+  .hbtns{gap:8px}
+  .btn-pri,.btn-out{padding:10px 18px;font-size:.86rem}
+  /* Rrow label narrower */
+  .rrow label{min-width:86px}
+  /* Pay grid 4 cols */
+  .pay-grid{grid-template-columns:repeat(4,1fr)}
+  .pay-ic{font-size:1.1rem}
+  /* Dashboard header */
+  .dh h2{font-size:1.2rem}
+  /* Section padding */
+  .ctr,.csm{padding:26px 16px}
+  .ctr{padding-top:18px}
+}
+@media(max-width:400px){
+  .sg{grid-template-columns:repeat(2,1fr)}
+  .pay-grid{grid-template-columns:repeat(3,1fr)}
+  .fb{gap:6px}
+}
+.dh{margin-bottom:23px}
+.dh h2{font-family:var(--fh);font-size:1.4rem;font-weight:800}
+.dh p{color:var(--mu);font-size:.84rem;margin-top:3px}
+/* STATS */
+.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(142px,1fr));gap:12px;margin-bottom:23px}
+.sc{background:var(--cd);border:1px solid var(--bd);border-radius:var(--r);padding:16px;position:relative;overflow:hidden}
+.sc::after{content:'';position:absolute;top:0;right:0;width:52px;height:52px;border-radius:0 12px 0 60px;opacity:.14}
+.sc.bl::after{background:var(--ac)}.sc.cy::after{background:var(--ac2)}.sc.gr::after{background:var(--ok)}
+.sc.am::after{background:var(--wn)}.sc.re::after{background:var(--er)}.sc.pu::after{background:#a855f7}
+.sn{font-family:var(--fh);font-size:1.85rem;font-weight:800;line-height:1}
+.sl{color:var(--mu);font-size:.75rem;margin-top:4px}
+/* REQUEST CARDS */
+.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.sh h3{font-family:var(--fh);font-weight:700;font-size:.92rem}
+.rl{display:flex;flex-direction:column;gap:10px}
+.rc{background:var(--cd);border:1px solid var(--bd);border-radius:var(--r);padding:16px;transition:.2s}
+.rc:hover{border-color:rgba(59,130,246,.3)}
+.rct{display:flex;align-items:flex-start;justify-content:space-between;gap:9px;flex-wrap:wrap}
+.rtl{font-family:var(--fh);font-weight:700;font-size:.9rem;margin-bottom:3px}
+.rm{color:var(--mu);font-size:.77rem;display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:2px}
+.rd{color:var(--mu);font-size:.81rem;margin-top:8px;line-height:1.55}
+.ra{display:flex;gap:6px;margin-top:11px;flex-wrap:wrap;align-items:center}
+/* STATUS */
+.st{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:.69rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
+.st::before{content:'';width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.s-p{background:rgba(245,158,11,.11);color:var(--wn);border:1px solid rgba(245,158,11,.2)}.s-p::before{background:var(--wn)}
+.s-a{background:rgba(59,130,246,.11);color:var(--ac);border:1px solid rgba(59,130,246,.2)}.s-a::before{background:var(--ac)}
+.s-i{background:rgba(6,182,212,.11);color:var(--ac2);border:1px solid rgba(6,182,212,.2)}.s-i::before{background:var(--ac2)}
+.s-r{background:rgba(16,185,129,.11);color:var(--ok);border:1px solid rgba(16,185,129,.2)}.s-r::before{background:var(--ok)}
+.s-c{background:rgba(239,68,68,.11);color:var(--er);border:1px solid rgba(239,68,68,.2)}.s-c::before{background:var(--er)}
+/* BUTTONS */
+.btn{padding:6px 12px;border-radius:7px;border:none;font-size:.77rem;font-weight:600;transition:.2s;cursor:pointer;display:inline-flex;align-items:center;gap:4px}
+.b-ok{background:rgba(16,185,129,.13);color:var(--ok);border:1px solid rgba(16,185,129,.25)}.b-ok:hover{background:rgba(16,185,129,.22)}
+.b-er{background:rgba(239,68,68,.1);color:var(--er);border:1px solid rgba(239,68,68,.21)}.b-er:hover{background:rgba(239,68,68,.17)}
+.b-ac{background:rgba(59,130,246,.11);color:var(--ac);border:1px solid rgba(59,130,246,.21)}.b-ac:hover{background:rgba(59,130,246,.18)}
+.b-c2{background:rgba(6,182,212,.1);color:var(--ac2);border:1px solid rgba(6,182,212,.2)}.b-c2:hover{background:rgba(6,182,212,.17)}
+.b-wn{background:rgba(245,158,11,.1);color:var(--wn);border:1px solid rgba(245,158,11,.2)}.b-wn:hover{background:rgba(245,158,11,.17)}
+.b-nt{background:var(--sf2);color:var(--tx);border:1px solid var(--bd)}.b-nt:hover{border-color:var(--ac)}
+.b-pu{background:rgba(168,85,247,.11);color:#a855f7;border:1px solid rgba(168,85,247,.23)}.b-pu:hover{background:rgba(168,85,247,.18)}
+/* MAP PICKER */
+.mp-wrap{background:var(--sf2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-top:5px}
+.mp-bar{display:flex;align-items:center;gap:8px;padding:8px 11px;border-bottom:1px solid var(--bd);flex-wrap:wrap}
+.mp-bar span{font-size:.74rem;color:var(--mu);flex:1;min-width:120px}
+#lmap{height:270px;width:100%}
+.lc{display:flex;gap:8px;padding:7px 11px;font-size:.74rem;color:var(--mu);background:var(--bg);border-top:1px solid var(--bd);flex-wrap:wrap}
+.lc b{color:var(--ac2)}
+.btn-gps{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:7px;border:1px solid rgba(59,130,246,.25);background:rgba(59,130,246,.08);color:var(--ac);font-size:.74rem;font-weight:600;transition:.2s}
+.btn-gps:hover{background:rgba(59,130,246,.14)}
+.btn-gps.busy{opacity:.5;pointer-events:none}
+/* MODAL */
+.mo{position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(5px);z-index:600;display:none;align-items:center;justify-content:center;padding:13px}
+.mo.on{display:flex}
+.mb{background:var(--sf);border:1px solid var(--bd);border-radius:16px;width:100%;max-width:640px;max-height:92vh;overflow-y:auto;padding:27px;animation:mi .22s ease;position:relative}
+.mb-lg{max-width:800px}
+.mb-chat{max-width:760px;padding:0;display:flex;flex-direction:column;height:88vh;max-height:720px;overflow:hidden}
+@keyframes mi{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
+.mb h3{font-family:var(--fh);font-size:1.1rem;font-weight:800;margin-bottom:4px}
+.mb .msub{color:var(--mu);font-size:.82rem;margin-bottom:16px}
+.mclose{position:absolute;top:12px;right:12px;background:none;border:none;color:var(--mu);font-size:1.3rem;cursor:pointer;padding:4px 8px;border-radius:6px;z-index:2}
+.mclose:hover{background:var(--sf2);color:var(--tx)}
+/* CHAT */
+.ch-head{padding:13px 16px;background:var(--cd);border-bottom:1px solid var(--bd);flex-shrink:0}
+.ch-title{font-family:var(--fh);font-weight:700;font-size:.88rem}
+.ch-meta{color:var(--mu);font-size:.74rem;margin-top:2px;display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+.ch-msgs{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;background:var(--bg);min-height:0}
+.cm{display:flex;gap:8px;align-items:flex-end;max-width:86%}
+.cm.me{flex-direction:row-reverse;margin-left:auto}
+.cav{width:27px;height:27px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-weight:800;font-size:.67rem;flex-shrink:0}
+.cav.req{background:linear-gradient(135deg,var(--ac),#2563eb)}
+.cav.pro{background:linear-gradient(135deg,var(--ok),#059669)}
+.cav.adm{background:linear-gradient(135deg,var(--wn),#d97706)}
+.cav.sys{background:linear-gradient(135deg,#475569,#1e293b)}
+.cbub{padding:8px 12px;border-radius:13px;font-size:.83rem;line-height:1.5;word-break:break-word}
+.cm.me .cbub{background:linear-gradient(135deg,var(--ac),#2563eb);color:#fff;border-bottom-right-radius:3px}
+.cm:not(.me):not(.csys) .cbub{background:var(--sf2);border:1px solid var(--bd);border-bottom-left-radius:3px}
+.csys{justify-content:center;max-width:100%;margin:2px auto}
+.csys .cbub{background:rgba(100,116,139,.08);color:var(--mu);border:1px solid rgba(100,116,139,.15);border-radius:20px;font-size:.72rem;text-align:center;padding:4px 12px}
+.ct{font-size:.64rem;margin-top:3px;color:var(--mu);white-space:nowrap}
+.cm.me .ct{text-align:right}
+.csn{font-size:.69rem;font-weight:600;margin-bottom:2px;color:var(--mu)}
+.cin-w{padding:10px 13px;border-top:1px solid var(--bd);background:var(--sf2);display:flex;gap:7px;align-items:flex-end;flex-shrink:0}
+.cin{flex:1;background:var(--bg);border:1px solid var(--bd);border-radius:9px;padding:8px 12px;color:var(--tx);font-size:.85rem;outline:none;resize:none;max-height:96px;line-height:1.5;transition:.2s}
+.cin:focus{border-color:var(--ac)}
+.cin::placeholder{color:var(--mu)}
+.csnd{padding:8px 15px;border-radius:9px;border:none;background:linear-gradient(135deg,var(--ac),#2563eb);color:#fff;font-weight:600;font-size:.81rem;transition:.2s;flex-shrink:0}
+.csnd:hover{opacity:.9;transform:translateY(-1px)}
+/* PAYMENT WIDGET */
+.pay-wrap{background:var(--sf2);border:1px solid var(--bd);border-radius:10px;padding:14px;margin-bottom:14px}
+.pay-wrap .pw-ttl{font-size:.8rem;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.pay-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:7px;margin-bottom:12px}
+.pay-m{padding:9px 7px;border-radius:9px;border:2px solid var(--bd);background:var(--cd);cursor:pointer;text-align:center;transition:.2s;position:relative}
+.pay-m:hover{border-color:rgba(59,130,246,.37)}
+.pay-m.sel{border-color:var(--ac);background:rgba(59,130,246,.07)}
+.pay-m.sel::after{content:'✓';position:absolute;top:3px;right:5px;font-size:.58rem;font-weight:800;color:var(--ac)}
+.pay-ic{font-size:1.3rem;margin-bottom:4px}
+.pay-nm{font-size:.72rem;font-weight:600}
+.pay-sb{font-size:.62rem;color:var(--mu);margin-top:1px}
+.pay-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:.73rem;font-weight:600}
+.pb-paid{background:rgba(16,185,129,.11);color:var(--ok);border:1px solid rgba(16,185,129,.22)}
+.pb-pend{background:rgba(245,158,11,.09);color:var(--wn);border:1px solid rgba(245,158,11,.19)}
+.pb-free{background:rgba(100,116,139,.09);color:var(--mu);border:1px solid rgba(100,116,139,.17)}
+/* RESOLUTION / CANCEL CARDS */
+.res-card{background:var(--sf2);border:1px solid rgba(16,185,129,.25);border-radius:10px;padding:13px;margin-top:11px}
+.res-card h4{font-family:var(--fh);font-weight:700;color:var(--ok);font-size:.87rem;margin-bottom:8px}
+.rrow{display:flex;gap:7px;padding:5px 0;border-bottom:1px solid rgba(30,45,71,.4);font-size:.81rem}
+.rrow:last-child{border-bottom:none}
+.rrow label{color:var(--mu);min-width:103px;font-size:.75rem;padding-top:1px;flex-shrink:0}
+.can-card{background:var(--sf2);border:1px solid rgba(239,68,68,.25);border-radius:10px;padding:13px;margin-top:11px}
+.can-card h4{font-family:var(--fh);font-weight:700;color:var(--er);font-size:.87rem;margin-bottom:8px}
+/* PHONE BADGE */
+.ph-hide{font-family:monospace;background:var(--sf2);border:1px solid var(--bd);border-radius:6px;padding:3px 8px;font-size:.77rem;cursor:pointer;color:var(--mu);display:inline-flex;align-items:center;gap:4px;transition:.2s}
+.ph-hide:hover{border-color:var(--ac);color:var(--ac)}
+.ph-show{font-family:monospace;background:rgba(59,130,246,.07);border:1px solid rgba(59,130,246,.2);border-radius:6px;padding:3px 8px;font-size:.77rem;color:var(--ac);display:inline-flex;align-items:center;gap:4px}
+/* ADMIN TABLE */
+.tw{overflow-x:auto;border-radius:var(--r);border:1px solid var(--bd)}
+.tbl{width:100%;border-collapse:collapse;font-size:.81rem}
+.tbl th{background:var(--sf2);padding:10px 12px;text-align:left;font-size:.7rem;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;border-bottom:1px solid var(--bd)}
+.tbl td{padding:10px 12px;border-bottom:1px solid rgba(30,45,71,.4);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:rgba(59,130,246,.03)}
+.ta{display:flex;gap:5px;flex-wrap:wrap}
+.chip{display:inline-block;padding:2px 8px;border-radius:6px;font-size:.69rem;font-weight:600}
+.ch-a{background:rgba(245,158,11,.13);color:var(--wn)}
+.ch-p{background:rgba(16,185,129,.13);color:var(--ok)}
+.ch-u{background:rgba(59,130,246,.11);color:var(--ac)}
+.ch-on{background:rgba(16,185,129,.11);color:var(--ok)}
+.ch-off{background:rgba(239,68,68,.09);color:var(--er)}
+/* PROS GRID */
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(245px,1fr));gap:12px}
+.pcard{background:var(--cd);border:1px solid var(--bd);border-radius:var(--r);padding:16px;transition:.2s}
+.pcard:hover{border-color:rgba(59,130,246,.26);transform:translateY(-2px)}
+.pav{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--ac),var(--ac2));display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-weight:800;font-size:1rem;color:#fff;margin-bottom:9px}
+.pnm{font-family:var(--fh);font-weight:700;font-size:.91rem}
+.psk{color:var(--ac2);font-size:.78rem;margin-top:2px}
+.plc{color:var(--mu);font-size:.76rem;margin-top:4px}
+.pavl{display:inline-flex;align-items:center;gap:5px;margin-top:8px;font-size:.71rem;font-weight:600;padding:3px 9px;border-radius:20px}
+.pavl.on{background:rgba(16,185,129,.11);color:var(--ok);border:1px solid rgba(16,185,129,.21)}
+.pavl.off{background:rgba(239,68,68,.09);color:var(--er);border:1px solid rgba(239,68,68,.18)}
+.pavl::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor}
+/* FILTERS */
+.fb{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.fch{padding:6px 12px;border-radius:20px;border:1px solid var(--bd);background:transparent;color:var(--mu);font-size:.76rem;cursor:pointer;transition:.2s}
+.fch:hover,.fch.on{border-color:var(--ac);color:var(--ac);background:rgba(59,130,246,.07)}
+.sbox{padding:7px 12px;background:var(--sf2);border:1px solid var(--bd);border-radius:8px;color:var(--tx);font-size:.84rem;outline:none}
+.sbox:focus{border-color:var(--ac)}
+.sbox::placeholder{color:var(--mu)}
+/* TOGGLE */
+.dvd{height:1px;background:var(--bd);margin:16px 0}
+.tgl-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;gap:11px}
+.tgl-row .tl{font-weight:600;font-size:.86rem}
+.tgl-row .ts{font-size:.78rem;color:var(--mu);margin-top:2px}
+.tgl{width:38px;height:21px;border-radius:20px;border:2px solid var(--bd);background:var(--sf2);position:relative;cursor:pointer;transition:.3s;flex-shrink:0}
+.tgl::after{content:'';position:absolute;top:2px;left:2px;width:13px;height:13px;border-radius:50%;background:var(--mu);transition:.3s}
+.tgl.on{background:var(--ac);border-color:var(--ac)}
+.tgl.on::after{left:20px;background:#fff}
+/* ACTION MODAL TABS */
+.atabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.atab{padding:10px;border-radius:9px;border:2px solid var(--bd);background:transparent;color:var(--mu);font-size:.84rem;font-weight:600;cursor:pointer;text-align:center;transition:.2s}
+.atab.res.on{border-color:var(--ok);color:var(--ok);background:rgba(16,185,129,.06)}
+.atab.can.on{border-color:var(--er);color:var(--er);background:rgba(239,68,68,.05)}
+/* TOASTS */
+#TOAST{position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.tos{background:var(--sf2);border:1px solid var(--bd);border-radius:10px;padding:10px 15px;font-size:.82rem;max-width:300px;pointer-events:all;display:flex;align-items:center;gap:8px;animation:ti .27s ease;box-shadow:0 8px 22px rgba(0,0,0,.38)}
+.tos.ok{border-left:3px solid var(--ok)}.tos.er{border-left:3px solid var(--er)}.tos.in{border-left:3px solid var(--ac)}
+@keyframes ti{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:none}}
+/* LEAFLET DARK */
+.leaflet-tile-pane{filter:brightness(.72) saturate(.75) hue-rotate(198deg)}
+.leaflet-popup-content-wrapper{background:var(--sf2);color:var(--tx);border:1px solid var(--bd);border-radius:10px;box-shadow:0 8px 22px rgba(0,0,0,.5)}
+.leaflet-popup-tip{background:var(--sf2)}
+.leaflet-popup-content{margin:11px 13px;font-family:var(--fb);font-size:.82rem}
+.leaflet-control-zoom a{background:var(--sf2);color:var(--tx);border:1px solid var(--bd)}
+.leaflet-control-zoom a:hover{background:var(--sf);color:var(--ac)}
+/* MISC */
+.empty{text-align:center;padding:50px 16px;color:var(--mu)}
+.empty svg{margin-bottom:12px;opacity:.23}
+.empty h4{font-family:var(--fh);font-size:.92rem;font-weight:700;margin-bottom:5px;color:var(--tx)}
+.empty p{font-size:.81rem}
+.admin-tag{font-size:.66rem;background:rgba(245,158,11,.12);color:var(--wn);border:1px solid rgba(245,158,11,.23);border-radius:6px;padding:1px 7px;font-weight:600;margin-left:6px;vertical-align:middle}
+.info-box{background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.16);border-radius:9px;padding:11px 13px;font-size:.81rem;color:var(--ac);margin-bottom:15px}
+.warn-box{background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.2);border-radius:9px;padding:11px 13px;font-size:.81rem;color:var(--wn);margin-bottom:15px}
+
+/* ═══ PHASE 5 EXTRA CSS ═══ */
+/* Touch-friendly tap targets */
+@media(max-width:780px){
+  .btn{padding:8px 14px;font-size:.8rem}
+  .ra{gap:7px}
+  .ra .btn{min-height:36px}
+  /* Floating action button */
+  #fab{display:flex;position:fixed;bottom:72px;right:16px;z-index:490;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--ac),#2563eb);border:none;color:#fff;font-size:1.4rem;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(59,130,246,.5);cursor:pointer;transition:.2s}
+  #fab:hover{transform:scale(1.08);box-shadow:0 6px 22px rgba(59,130,246,.6)}
+  /* Swipe feel on cards */
+  .rc{-webkit-tap-highlight-color:transparent}
+  /* Landscape fix */
+  @media(orientation:landscape) and (max-height:500px){
+    #mob-tabbar{height:50px}
+    .mob-tab{font-size:.55rem;gap:1px}
+    .mob-tab svg{width:17px;height:17px}
+    .dm{padding-bottom:62px}
+  }
+}
+@media(min-width:781px){
+  #fab{display:none}
+  #mob-tabbar{display:none!important}
+}
+/* Better scrollbars on desktop */
+.ds::-webkit-scrollbar,.dm::-webkit-scrollbar{width:4px}
+.ds::-webkit-scrollbar-track,.dm::-webkit-scrollbar-track{background:transparent}
+.ds::-webkit-scrollbar-thumb,.dm::-webkit-scrollbar-thumb{background:var(--bd);border-radius:4px}
+/* Smooth page transitions */
+.page.on{animation:fi .25s ease}
+/* Filter bar sticky on mobile */
+@media(max-width:780px){
+  .fb-sticky{position:sticky;top:0;z-index:50;background:var(--bg);padding:10px 0;margin:-4px 0 12px}
+}
+/* Chat full-screen on mobile */
+@media(max-width:780px){
+  #M-chat.on{padding:0;align-items:flex-end}
+  #M-chat .mb-chat{width:100%;max-width:100%;border-radius:16px 16px 0 0;max-height:92vh}
+}
+/* Better form spacing on mobile */
+@media(max-width:780px){
+  .field{margin-bottom:12px}
+  .inp{font-size:16px}/* prevent iOS zoom on focus */
+}
+</style>
+</head>
+<body>
+<div id="LS"><div class="logo">⚡ TechLink</div><div class="ring"></div></div>
+<div id="TOAST"></div>
+<nav id="NAV" style="display:none">
+  <div class="nb">⚡ TechLink</div>
+  <div class="nr">
+    <button id="mob-menu-btn" onclick="toggleDrawer()" aria-label="Menu">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <span id="nav-name" style="font-size:.82rem;color:var(--mu)"></span>
+    <span id="nav-bdg" class="bdg"></span>
+    <button id="nav-setup-btn" class="bsm" onclick="CM_open('M-setup')" style="display:none" title="Setup Guide">⚙️ Setup</button>
+    <button id="nav-setup-btn" class="bsm" onclick="SP('page-setup')" style="display:none;background:rgba(245,158,11,.12);border-color:rgba(245,158,11,.3);color:var(--wn)">⚙ Setup</button>
+    <button class="bsm" onclick="logout()">Sign out</button>
+  </div>
+</nav>
+
+<!-- LANDING PAGE -->
+<div id="page-landing" class="page on">
+  <nav style="position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(10,14,26,.94);backdrop-filter:blur(16px);border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:60px">
+    <div class="nb">⚡ TechLink</div>
+    <div style="display:flex;gap:9px">
+      <button class="btn-out" style="padding:7px 15px;font-size:.81rem" onclick="SP('login')">Sign In</button>
+      <button class="btn-pri" style="padding:7px 15px;font-size:.81rem" onclick="SP('register')">Get Started</button>
+    </div>
+  </nav>
+  <div class="ctr" style="padding-top:70px">
+    <div class="hero">
+      <div class="htag">🌐 IT Service Platform — Full Stack Complete</div>
+      <h1>Connect · Chat · Resolve<br><em>IT Services</em> Near You</h1>
+      <p>Real-time messaging, map locations, payment tracking, resolution remarks, Google Sign-In, and full admin control.</p>
+      <div class="hbtns">
+        <button class="btn-pri" onclick="SP('register')">Request a Service</button>
+        <button class="btn-out" onclick="SP('register-pro')">Join as IT Pro</button>
+      </div>
+    </div>
+    <div class="fg">
+      <div class="fc"><div class="fc-ic">💬</div><h3>3-Way Live Chat</h3><p>Real-time messaging between requestor, IT pro, and admin on every job. System events auto-post on status changes.</p></div>
+      <div class="fc"><div class="fc-ic">💰</div><h3>Full Payment Suite</h3><p>Cash, PhonePe, Google Pay, Paytm, BHIM UPI, Bank Transfer — log amount, method, status and reference.</p></div>
+      <div class="fc"><div class="fc-ic">🛡️</div><h3>Super Admin Control</h3><p>Create requests on behalf of users, assign pros, toggle phone visibility, force resolve/cancel, manage all users.</p></div>
+      <div class="fc"><div class="fc-ic">🔑</div><h3>Google Sign-In</h3><p>Quick registration and login via Google account in addition to email/password authentication.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- LOGIN PAGE -->
+<div id="page-login" class="page">
+  <div class="csm">
+    <div style="text-align:center;margin-bottom:20px"><div class="nb" style="justify-content:center;font-size:1.26rem">⚡ TechLink</div></div>
+    <div class="ac">
+      <h2>Welcome back</h2><p class="sub">Sign in to your account</p>
+      <button class="btn-google" onclick="googleSignIn()">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="G"/>
+        Continue with Google
+      </button>
+      <div class="or-sep">or sign in with email</div>
+      <div class="field"><label>Email</label><input id="LE" type="email" class="inp" placeholder="you@example.com"/></div>
+      <div class="field"><label>Password</label><input id="LP" type="password" class="inp" placeholder="••••••••"/></div>
+      <div id="Lerr" class="em"></div>
+      <button class="bfull" onclick="doLogin()">Sign In</button>
+      <div class="al">No account? <a href="#" onclick="SP('register')">Requestor</a> · <a href="#" onclick="SP('register-pro')">IT Pro</a></div>
+      <div class="al"><a href="#" onclick="SP('landing')">← Back</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- REGISTER REQUESTOR -->
+<div id="page-register" class="page">
+  <div class="csm">
+    <div class="ac">
+      <h2>Create Account</h2><p class="sub">Register as a Service Requestor</p>
+      <button class="btn-google" onclick="googleSignIn('requestor')">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="G"/>
+        Sign up with Google
+      </button>
+      <div class="or-sep">or register with email</div>
+      <div class="field"><label>Full Name</label><input id="RN" class="inp" placeholder="Your full name"/></div>
+      <div class="field"><label>Email</label><input id="RE" type="email" class="inp" placeholder="you@example.com"/></div>
+      <div class="field"><label>Phone</label><input id="RP" type="tel" class="inp" placeholder="+91 9XXXXXXXXX"/></div>
+      <div class="field"><label>Organisation</label><input id="RO" class="inp" placeholder="Company or organisation"/></div>
+      <div class="field"><label>City / Area</label><input id="RC" class="inp" placeholder="e.g. Koppal, Bengaluru"/></div>
+      <div class="field"><label>Password</label><input id="RPW" type="password" class="inp" placeholder="Min 6 characters"/></div>
+      <div id="Rerr" class="em"></div>
+      <button class="bfull" onclick="doReg('requestor')">Create Account</button>
+      <div class="al"><a href="#" onclick="SP('login')">Have an account?</a> · <a href="#" onclick="SP('register-pro')">Register as IT Pro →</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- REGISTER IT PRO -->
+<div id="page-register-pro" class="page">
+  <div class="csm">
+    <div class="ac">
+      <h2>Join as IT Professional</h2><p class="sub">Accept service requests in your area</p>
+      <button class="btn-google" onclick="googleSignIn('professional')">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="G"/>
+        Sign up with Google
+      </button>
+      <div class="or-sep">or register with email</div>
+      <div class="field"><label>Full Name</label><input id="PN" class="inp"/></div>
+      <div class="field"><label>Email</label><input id="PE" type="email" class="inp" placeholder="you@example.com"/></div>
+      <div class="field"><label>Phone</label><input id="PP" type="tel" class="inp" placeholder="+91 9XXXXXXXXX"/></div>
+      <div class="field"><label>Primary Skill</label>
+        <select id="PSK" class="inp"><option value="">Select skill</option>
+          <option>Network Infrastructure</option><option>Server Administration</option>
+          <option>Active Directory / Windows Admin</option><option>Hardware &amp; Repair</option>
+          <option>CCTV &amp; Surveillance</option><option>Structured Cabling</option>
+          <option>Cybersecurity</option><option>Cloud Infrastructure</option>
+          <option>IT Support &amp; Helpdesk</option><option>Other</option></select>
+      </div>
+      <div class="field"><label>City / Service Area</label><input id="PC" class="inp" placeholder="e.g. Koppal, Bengaluru"/></div>
+      <div class="field"><label>Years of Experience</label><input id="PEX" type="number" class="inp" min="0" max="50" placeholder="e.g. 5"/></div>
+      <div class="field"><label>UPI ID <span style="color:var(--mu);font-weight:400">(for payment reference)</span></label><input id="PUPI" class="inp" placeholder="name@upi or 9XXXXXXXXX@paytm"/></div>
+      <div class="field"><label>Password</label><input id="PPW" type="password" class="inp" placeholder="Min 6 characters"/></div>
+      <div id="Perr" class="em"></div>
+      <button class="bfull" onclick="doReg('professional')">Register as IT Pro</button>
+      <div class="al"><a href="#" onclick="SP('register')">Register as Requestor →</a> · <a href="#" onclick="SP('login')">Sign In</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- GOOGLE ROLE PICKER (shown when Google user has no role yet) -->
+<div id="page-role-pick" class="page">
+  <div class="csm">
+    <div class="ac">
+      <h2>Almost there!</h2><p class="sub">Choose your account type to complete setup</p>
+      <div style="display:grid;gap:12px;margin-bottom:20px">
+        <button class="bfull" onclick="completeGoogleSetup('requestor')" style="padding:16px">
+          🏢 I want to Request IT Services<br><span style="font-size:.8rem;opacity:.75;font-weight:400">Post requests, track progress, chat with IT pros</span>
+        </button>
+        <button class="bfull" onclick="completeGoogleSetup('professional')" style="background:linear-gradient(135deg,var(--ok),#059669);padding:16px">
+          👨‍💻 I am an IT Professional<br><span style="font-size:.8rem;opacity:.75;font-weight:400">Accept jobs, chat, mark resolved, receive payment</span>
+        </button>
+      </div>
+      <div id="rp-extra" style="display:none">
+        <div class="field"><label>Phone</label><input id="RPX-ph" class="inp" placeholder="+91 9XXXXXXXXX"/></div>
+        <div class="field"><label>City / Area</label><input id="RPX-city" class="inp" placeholder="e.g. Koppal, Bengaluru"/></div>
+        <div id="rp-pro-fields" style="display:none">
+          <div class="field"><label>Primary Skill</label>
+            <select id="RPX-skill" class="inp"><option value="">Select skill</option>
+              <option>Network Infrastructure</option><option>Server Administration</option>
+              <option>Active Directory / Windows Admin</option><option>Hardware &amp; Repair</option>
+              <option>CCTV &amp; Surveillance</option><option>Structured Cabling</option>
+              <option>Cybersecurity</option><option>Cloud Infrastructure</option>
+              <option>IT Support &amp; Helpdesk</option><option>Other</option></select>
+          </div>
+          <div class="field"><label>UPI ID</label><input id="RPX-upi" class="inp" placeholder="name@upi"/></div>
+        </div>
+        <div id="rperr" class="em"></div>
+        <button class="bfull" onclick="saveGoogleProfile()">Complete Setup</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- REQUESTOR DASHBOARD -->
+<div id="page-dash-requestor" class="page">
+  <div class="dl">
+    <aside class="ds">
+      <div class="dsl">Menu</div>
+      <button class="ni on" onclick="rTab('ov',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Overview</button>
+      <button class="ni" onclick="rTab('my',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>My Requests<span id="r-cnt" class="cnt cnt-ac" style="display:none">0</span></button>
+      <button class="ni" onclick="rTab('pros',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>IT Professionals</button>
+      <button class="ni" onclick="rTab('new',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>New Request</button>
+    </aside>
+    <main class="dm">
+      <div id="rt-ov">
+        <div class="dh" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px">
+          <div><h2 id="r-wel">Welcome back 👋</h2><p>Your service request summary</p></div>
+          <input class="sbox" placeholder="🔍 Search all requests…" oninput="globalSearch(this.value)" style="width:220px;padding:9px 13px"/>
+        </div>
+        <div class="sg">
+          <div class="sc am"><div class="sn" id="rs-p">0</div><div class="sl">Pending</div></div>
+          <div class="sc bl"><div class="sn" id="rs-a">0</div><div class="sl">Accepted</div></div>
+          <div class="sc cy"><div class="sn" id="rs-i">0</div><div class="sl">In Progress</div></div>
+          <div class="sc gr"><div class="sn" id="rs-r">0</div><div class="sl">Resolved</div></div>
+        </div>
+        <div class="sh"><h3>Recent Requests</h3><button class="bsm" onclick="rTab('my',null)">View All</button></div>
+        <div id="r-rec" class="rl"></div>
+      </div>
+      <div id="rt-my" style="display:none">
+        <div class="dh"><h2>My Service Requests</h2></div>
+        <div class="fb fb-sticky">
+          <input class="sbox" placeholder="Search…" oninput="rTF(this.value)" style="flex:1;max-width:200px"/>
+          <button class="fch on" onclick="rSF('all',this)">All</button>
+          <button class="fch" onclick="rSF('pending',this)">Pending</button>
+          <button class="fch" onclick="rSF('accepted',this)">Accepted</button>
+          <button class="fch" onclick="rSF('inprogress',this)">In Progress</button>
+          <button class="fch" onclick="rSF('resolved',this)">Resolved</button>
+        </div>
+        <div id="r-mylist" class="rl"></div>
+      </div>
+      <div id="rt-pros" style="display:none">
+        <div class="dh"><h2>IT Professionals</h2></div>
+        <div class="fb"><input class="sbox" placeholder="Search name or city…" oninput="pF(this.value)" style="flex:1"/></div>
+        <div id="r-prosgrid" class="pgrid"></div>
+      </div>
+      <div id="rt-new" style="display:none">
+        <div class="dh"><h2>New Service Request</h2><p>Describe the issue and pin exact site location on the map</p></div>
+        <div style="background:var(--cd);border:1px solid var(--bd);border-radius:16px;padding:24px;max-width:640px">
+          <div class="field"><label>Request Title</label><input id="NRT" class="inp" placeholder="e.g. Network switch replacement needed"/></div>
+          <div class="field"><label>Service Category</label>
+            <select id="NRC" class="inp"><option value="">Select category</option>
+              <option>Network Infrastructure</option><option>Server Administration</option>
+              <option>Active Directory / Windows Admin</option><option>Hardware &amp; Repair</option>
+              <option>CCTV &amp; Surveillance</option><option>Structured Cabling</option>
+              <option>Cybersecurity</option><option>Cloud Infrastructure</option>
+              <option>IT Support &amp; Helpdesk</option><option>Other</option></select>
+          </div>
+          <div class="field"><label>Priority</label>
+            <select id="NRPR" class="inp"><option>Low</option><option selected>Medium</option><option>High</option><option>Critical</option></select>
+          </div>
+          <div class="field"><label>Site Address</label><input id="NRL" class="inp" placeholder="e.g. 2nd Floor, Main Office, Koppal"/></div>
+          <div class="field">
+            <label>📍 Pin Exact Location on Map <span style="color:var(--mu);font-weight:400">(required)</span></label>
+            <div class="mp-wrap">
+              <div class="mp-bar">
+                <button class="btn-gps" id="gps-btn" onclick="doGPS()">📡 Use My Location</button>
+                <span id="map-hint">Click map to drop a pin on your site</span>
+              </div>
+              <div id="lmap"></div>
+              <div class="lc" id="lcoords" style="display:none">📍 <b id="coord-txt"></b><span id="addr-txt" style="margin-left:5px;flex:1"></span></div>
+            </div>
+          </div>
+          <div class="field"><label>Detailed Description</label><textarea id="NRD" class="inp" rows="4" placeholder="Describe the problem in detail…"></textarea></div>
+          <div id="NRerr" class="em"></div>
+          <button class="bfull" onclick="submitReq()">Submit Request</button>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- PROFESSIONAL DASHBOARD -->
+<div id="page-dash-professional" class="page">
+  <div class="dl">
+    <aside class="ds">
+      <div class="dsl">Menu</div>
+      <button class="ni on" onclick="pTab('ov',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Overview</button>
+      <button class="ni" onclick="pTab('open',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Open Requests<span id="p-cnt" class="cnt cnt-ac" style="display:none">0</span></button>
+      <button class="ni" onclick="pTab('jobs',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>My Jobs</button>
+      <button class="ni" onclick="pTab('profile',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>My Profile</button>
+    </aside>
+    <main class="dm">
+      <div id="pt-ov">
+        <div class="dh"><h2 id="p-wel">Welcome 👋</h2><p>Manage service requests in your area</p></div>
+        <div class="sg">
+          <div class="sc am"><div class="sn" id="ps-o">0</div><div class="sl">Open</div></div>
+          <div class="sc bl"><div class="sn" id="ps-a">0</div><div class="sl">Accepted</div></div>
+          <div class="sc cy"><div class="sn" id="ps-i">0</div><div class="sl">In Progress</div></div>
+          <div class="sc gr"><div class="sn" id="ps-r">0</div><div class="sl">Resolved</div></div>
+        </div>
+        <div class="sh"><h3>Open Requests</h3></div>
+        <div id="p-ovopen" class="rl"></div>
+      </div>
+      <div id="pt-open" style="display:none">
+        <div class="dh"><h2>Open Requests</h2></div>
+        <div class="fb">
+          <input class="sbox" placeholder="Search…" oninput="pOS(this.value)" style="flex:1;max-width:200px"/>
+          <button class="fch on" onclick="pOC('all',this)">All</button>
+          <button class="fch" onclick="pOC('Network Infrastructure',this)">Network</button>
+          <button class="fch" onclick="pOC('Server Administration',this)">Server</button>
+          <button class="fch" onclick="pOC('Hardware &amp; Repair',this)">Hardware</button>
+          <button class="fch" onclick="pOC('CCTV &amp; Surveillance',this)">CCTV</button>
+        </div>
+        <div id="p-openlist" class="rl"></div>
+      </div>
+      <div id="pt-jobs" style="display:none">
+        <div class="dh"><h2>My Jobs</h2></div>
+        <div id="p-joblist" class="rl"></div>
+      </div>
+      <div id="pt-profile" style="display:none">
+        <div class="dh"><h2>My Profile</h2></div>
+        <div style="background:var(--cd);border:1px solid var(--bd);border-radius:16px;padding:22px;max-width:470px">
+          <div id="p-profbody"></div>
+          <div class="dvd"></div>
+          <div class="tgl-row">
+            <div><div class="tl">Availability Status</div><div class="ts">Toggle to show you're available for new jobs</div></div>
+            <button id="avail-tgl" class="tgl" onclick="toggleAvail()"></button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ADMIN DASHBOARD -->
+<div id="page-dash-admin" class="page">
+  <div class="dl">
+    <aside class="ds">
+      <div class="dsl">Admin</div>
+      <button class="ni on" onclick="aTab('ov',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Overview</button>
+      <button class="ni" onclick="aTab('reqs',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>All Requests<span id="a-cnt" class="cnt cnt-er" style="display:none">0</span></button>
+      <button class="ni" onclick="aTab('create',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Create Request</button>
+      <button class="ni" onclick="aTab('users',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Users</button>
+      <button class="ni" onclick="aTab('profs',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>IT Professionals</button>
+      <button class="ni" onclick="aTab('settings',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Settings</button>
+      <button class="ni" onclick="aTab('map',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>Requests Map</button>
+    </aside>
+    <main class="dm">
+      <div id="at-ov">
+        <div class="dh"><h2>Admin Dashboard</h2><p>Full platform control and oversight</p></div>
+        <div class="sg">
+          <div class="sc am"><div class="sn" id="as-p">0</div><div class="sl">Pending</div></div>
+          <div class="sc bl"><div class="sn" id="as-a">0</div><div class="sl">Accepted</div></div>
+          <div class="sc cy"><div class="sn" id="as-i">0</div><div class="sl">In Progress</div></div>
+          <div class="sc gr"><div class="sn" id="as-r">0</div><div class="sl">Resolved</div></div>
+          <div class="sc re"><div class="sn" id="as-c">0</div><div class="sl">Cancelled</div></div>
+          <div class="sc pu"><div class="sn" id="as-u">0</div><div class="sl">Total Users</div></div>
+        </div>
+        <div class="sh"><h3>Latest Requests</h3><button class="bsm" onclick="aTab('reqs',null)">View All</button></div>
+        <div id="a-rec" class="rl"></div>
+      </div>
+      <div id="at-reqs" style="display:none">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:9px">
+          <div class="dh" style="margin:0"><h2>All Requests</h2></div>
+          <div style="display:flex;gap:7px;flex-wrap:wrap">
+            <input class="sbox" id="a-rs" placeholder="Search…" oninput="aFR()" style="width:175px"/>
+            <select class="inp" id="a-rf" onchange="aFR()" style="width:128px;padding:7px 10px">
+              <option value="all">All Status</option><option value="pending">Pending</option>
+              <option value="accepted">Accepted</option><option value="inprogress">In Progress</option>
+              <option value="resolved">Resolved</option><option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+        </div>
+        <div id="a-reqlist" class="rl"></div>
+      </div>
+      <div id="at-create" style="display:none">
+        <div class="dh"><h2>Create Request on Behalf</h2><p>Admin creates a service request for a registered requestor and optionally assigns an IT pro</p></div>
+        <div style="background:var(--cd);border:1px solid var(--bd);border-radius:16px;padding:22px;max-width:640px">
+          <div class="warn-box">⚠️ This request will be created on behalf of the selected requestor and tagged as <b>Admin Created</b>.</div>
+          <div class="field"><label>On Behalf Of (Requestor) *</label><select id="AC-req" class="inp"><option value="">Select requestor…</option></select></div>
+          <div class="field"><label>Request Title *</label><input id="AC-title" class="inp" placeholder="e.g. Server rack installation"/></div>
+          <div class="field"><label>Service Category *</label>
+            <select id="AC-cat" class="inp"><option value="">Select category</option>
+              <option>Network Infrastructure</option><option>Server Administration</option>
+              <option>Active Directory / Windows Admin</option><option>Hardware &amp; Repair</option>
+              <option>CCTV &amp; Surveillance</option><option>Structured Cabling</option>
+              <option>Cybersecurity</option><option>Cloud Infrastructure</option>
+              <option>IT Support &amp; Helpdesk</option><option>Other</option></select>
+          </div>
+          <div class="field"><label>Priority</label>
+            <select id="AC-pr" class="inp"><option>Low</option><option selected>Medium</option><option>High</option><option>Critical</option></select>
+          </div>
+          <div class="field"><label>Assign to IT Pro <span style="color:var(--mu);font-weight:400">(optional — leave blank to post as open)</span></label>
+            <select id="AC-pro" class="inp"><option value="">Leave unassigned (open)</option></select>
+          </div>
+          <div class="field"><label>Site Address *</label><input id="AC-loc" class="inp" placeholder="Address or area where service is needed"/></div>
+          <div class="field"><label>Description *</label><textarea id="AC-desc" class="inp" rows="3" placeholder="Describe the service needed in detail…"></textarea></div>
+          <div id="ACerr" class="em"></div>
+          <button class="bfull" onclick="adminCreateReq()">Create Request</button>
+        </div>
+      </div>
+      <div id="at-users" style="display:none">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:9px">
+          <div class="dh" style="margin:0"><h2>User Management</h2></div>
+          <input class="sbox" placeholder="Search users…" oninput="aFU(this.value)" style="width:195px"/>
+        </div>
+        <div class="tw"><table class="tbl"><thead><tr><th>Name / Email</th><th>Role</th><th>City</th><th>Phone</th><th>Joined</th><th>Status</th><th>Actions</th></tr></thead><tbody id="a-utbl"></tbody></table></div>
+      </div>
+      <div id="at-profs" style="display:none">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:9px">
+          <div class="dh" style="margin:0"><h2>IT Professionals</h2></div>
+          <input class="sbox" placeholder="Search…" oninput="aFP(this.value)" style="width:195px"/>
+        </div>
+        <div class="tw"><table class="tbl"><thead><tr><th>Name / Email</th><th>Skill</th><th>City</th><th>UPI ID</th><th>Avail.</th><th>Actions</th></tr></thead><tbody id="a-ptbl"></tbody></table></div>
+      </div>
+      <div id="at-settings" style="display:none">
+        <div class="dh"><h2>Platform Settings</h2><p>Global controls — apply immediately to all users</p></div>
+        <div style="max-width:560px;display:flex;flex-direction:column;gap:12px">
+          <div style="background:var(--cd);border:1px solid var(--bd);border-radius:14px;padding:20px">
+            <div style="font-family:var(--fh);font-weight:700;font-size:.92rem;margin-bottom:13px">📱 Phone Number Visibility</div>
+            <div class="tgl-row"><div><div class="tl">Show requestor phone to IT Professionals</div><div class="ts">IT pros can reveal requestor phone on accepted jobs</div></div><button id="sv-rph" class="tgl" onclick="saveSetting('showReqPhone',this)"></button></div>
+            <div class="dvd" style="margin:9px 0"></div>
+            <div class="tgl-row"><div><div class="tl">Show IT Pro phone to Requestors</div><div class="ts">Requestors can reveal IT pro phone after acceptance</div></div><button id="sv-pph" class="tgl" onclick="saveSetting('showProPhone',this)"></button></div>
+          </div>
+          <div style="background:var(--cd);border:1px solid var(--bd);border-radius:14px;padding:20px">
+            <div style="font-family:var(--fh);font-weight:700;font-size:.92rem;margin-bottom:13px">🔐 Registration Controls</div>
+            <div class="tgl-row"><div><div class="tl">Allow new Requestor registrations</div><div class="ts">Disable to stop new requestors from signing up</div></div><button id="sv-rr" class="tgl on" onclick="saveSetting('allowReqReg',this)"></button></div>
+            <div class="dvd" style="margin:9px 0"></div>
+            <div class="tgl-row"><div><div class="tl">Allow new IT Pro registrations</div><div class="ts">Disable to stop new IT pros from signing up</div></div><button id="sv-pr" class="tgl on" onclick="saveSetting('allowProReg',this)"></button></div>
+          </div>
+          <div style="background:var(--cd);border:1px solid var(--bd);border-radius:14px;padding:20px">
+            <div style="font-family:var(--fh);font-weight:700;font-size:.92rem;margin-bottom:12px">📊 Platform Stats</div>
+            <div id="plat-stats" style="font-size:.82rem;color:var(--mu)">Loading…</div>
+          </div>
+          <div style="background:var(--cd);border:1px solid var(--bd);border-radius:14px;padding:20px">
+            <div style="font-family:var(--fh);font-weight:700;font-size:.92rem;margin-bottom:13px">📢 Broadcast Message</div>
+            <div class="field">
+              <label>Send to</label>
+              <select id="broadcast-role" class="inp" style="margin-bottom:9px">
+                <option value="all">All Users</option>
+                <option value="requestor">Requestors Only</option>
+                <option value="professional">IT Professionals Only</option>
+              </select>
+            </div>
+            <div class="field"><label>Message</label>
+              <textarea id="broadcast-msg" class="inp" rows="2" placeholder="System-wide announcement or notice…"></textarea></div>
+            <button class="bfull" onclick="sendBroadcast()">📤 Send Broadcast</button>
+          </div>
+          <div style="background:var(--cd);border:1px solid var(--bd);border-radius:14px;padding:20px">
+            <div style="font-family:var(--fh);font-weight:700;font-size:.92rem;margin-bottom:10px">📥 Export Data</div>
+            <p style="color:var(--mu);font-size:.81rem;margin-bottom:12px">Download all service requests as a CSV file for reporting or records.</p>
+            <button class="bfull" onclick="exportReport()">⬇ Download Requests CSV</button>
+          </div>
+          <div style="background:var(--cd);border:1px solid var(--bd);border-radius:14px;padding:20px">
+            <div style="font-family:var(--fh);font-weight:700;font-size:.92rem;margin-bottom:10px">🔒 Firestore Rules (copy &amp; paste)</div>
+            <div style="background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:12px;font-family:monospace;font-size:.72rem;color:var(--ac2);line-height:1.8;overflow-x:auto">
+rules_version = '2';<br>
+service cloud.firestore {<br>
+&nbsp;&nbsp;match /databases/{db}/documents {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;function isAdmin() {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return request.auth != null &amp;&amp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get(/databases/$(db)/documents/users/$(request.auth.uid)).data.role == 'admin';<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;match /users/{uid} {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;allow read: if request.auth != null;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;allow write: if request.auth != null &amp;&amp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(request.auth.uid == uid || isAdmin());<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;match /requests/{rid} {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;allow read: if request.auth != null;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;allow create: if request.auth != null;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;allow update: if request.auth != null &amp;&amp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(isAdmin() || request.auth.uid == resource.data.requestorId<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|| request.auth.uid == resource.data.professionalId<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|| (resource.data.status == 'pending' &amp;&amp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;resource.data.professionalId == null));<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;allow delete: if isAdmin();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;match /messages/{mid} {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;allow read, write: if request.auth != null;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;match /platform/{doc} {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;allow read: if request.auth != null;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;allow write: if isAdmin();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;match /broadcasts/{bid} {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;allow read: if request.auth != null;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;allow write: if isAdmin();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;}<br>
+}<br>
+            </div>
+            <button class="bfull" style="margin-top:10px;background:var(--sf2);color:var(--tx)" onclick="navigator.clipboard.writeText(document.querySelector('#at-settings code')?.textContent||'').then(()=>toast('Copied!','ok'))">📋 Copy Rules</button>
+          </div>
+          </div>
+        </div>
+      </div>
+      <div id="at-map" style="display:none">
+        <div class="dh"><h2>Requests Map</h2><p>All location-tagged requests plotted live</p></div>
+        <div style="background:var(--cd);border:1px solid var(--bd);border-radius:16px;overflow:hidden">
+          <div style="padding:12px 16px;border-bottom:1px solid var(--bd);display:flex;gap:7px;flex-wrap:wrap">
+            <button class="fch on" onclick="aMapFlt('all',this)">All</button>
+            <button class="fch" onclick="aMapFlt('pending',this)">Pending</button>
+            <button class="fch" onclick="aMapFlt('accepted',this)">Accepted</button>
+            <button class="fch" onclick="aMapFlt('inprogress',this)">In Progress</button>
+            <button class="fch" onclick="aMapFlt('resolved',this)">Resolved</button>
+          </div>
+          <div id="amap" style="height:500px"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- CHAT MODAL -->
+<div id="M-chat" class="mo">
+  <div class="mb mb-chat">
+    <button class="mclose" onclick="CM('M-chat')" style="top:10px;right:10px">✕</button>
+    <div class="ch-head">
+      <div class="ch-title" id="ch-ttl">—</div>
+      <div class="ch-meta"><span id="ch-st"></span><span id="ch-cat"></span><span id="ch-who"></span></div>
+    </div>
+    <div class="ch-msgs" id="ch-msgs"></div>
+    <div class="cin-w">
+      <textarea class="cin" id="cin" placeholder="Type message… (Enter to send, Shift+Enter for new line)"
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg()}"
+        oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,96)+'px'" rows="1"></textarea>
+      <button class="csnd" onclick="sendMsg()">Send ↑</button>
+    </div>
+  </div>
+</div>
+
+<!-- ACTION MODAL: Resolve / Cancel -->
+<div id="M-action" class="mo">
+  <div class="mb" style="max-width:580px">
+    <button class="mclose" onclick="CM('M-action')">✕</button>
+    <h3 id="act-title">Close Request</h3>
+    <p class="msub">Provide details to close this request</p>
+    <div class="atabs" id="act-tabs">
+      <button class="atab res on" onclick="setAT('res',this)">✓ Mark Resolved</button>
+      <button class="atab can" onclick="setAT('can',this)">✕ Cancel Request</button>
+    </div>
+    <div id="act-res-f">
+      <div class="field"><label>Work Summary / Resolution Remarks <span style="color:var(--er)">*</span></label>
+        <textarea id="act-rem" class="inp" rows="3" placeholder="What was done? Parts replaced, configs changed, issues resolved…"></textarea></div>
+      <div class="field"><label>Work Duration</label><input id="act-dur" class="inp" placeholder="e.g. 3 hours, 1 day"/></div>
+      <div class="pay-wrap">
+        <div class="pw-ttl">💰 Payment Details</div>
+        <div class="pay-grid" id="pay-pick">
+          <div class="pay-m sel" onclick="pickPay('cash',this)"><div class="pay-ic">💵</div><div class="pay-nm">Cash</div><div class="pay-sb">Direct</div></div>
+          <div class="pay-m" onclick="pickPay('phonepay',this)"><div class="pay-ic">📱</div><div class="pay-nm">PhonePe</div><div class="pay-sb">UPI</div></div>
+          <div class="pay-m" onclick="pickPay('gpay',this)"><div class="pay-ic">🔵</div><div class="pay-nm">Google Pay</div><div class="pay-sb">UPI</div></div>
+          <div class="pay-m" onclick="pickPay('paytm',this)"><div class="pay-ic">💙</div><div class="pay-nm">Paytm</div><div class="pay-sb">UPI/Wallet</div></div>
+          <div class="pay-m" onclick="pickPay('bhim',this)"><div class="pay-ic">🏦</div><div class="pay-nm">BHIM UPI</div><div class="pay-sb">UPI</div></div>
+          <div class="pay-m" onclick="pickPay('bank',this)"><div class="pay-ic">🏛️</div><div class="pay-nm">Bank</div><div class="pay-sb">NEFT/IMPS</div></div>
+          <div class="pay-m" onclick="pickPay('cheque',this)"><div class="pay-ic">📄</div><div class="pay-nm">Cheque</div><div class="pay-sb">Instrument</div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
+          <div class="field" style="margin:0"><label>Amount (₹)</label><input type="number" id="act-amt" class="inp" placeholder="e.g. 1500" min="0"/></div>
+          <div class="field" style="margin:0"><label>Payment Status</label>
+            <select id="act-pst" class="inp"><option value="paid">Paid ✓</option><option value="pending">Pending (pay later)</option><option value="waived">Waived / Free</option></select>
+          </div>
+        </div>
+        <div class="field" style="margin-top:9px;margin-bottom:0"><label>Transaction Ref / Note <span style="color:var(--mu);font-weight:400">(optional)</span></label>
+          <input id="act-txn" class="inp" placeholder="UPI Ref No., Cheque No., NEFT UTR, or any note"/></div>
+      </div>
+    </div>
+    <div id="act-can-f" style="display:none">
+      <div class="field"><label>Reason for Cancellation <span style="color:var(--er)">*</span></label>
+        <textarea id="act-reason" class="inp" rows="3" placeholder="Explain why this request is being cancelled…"></textarea></div>
+    </div>
+    <div id="act-err" class="em"></div>
+    <button class="bfull" id="act-btn" onclick="submitAction()">Submit &amp; Close Request</button>
+  </div>
+</div>
+
+<!-- MAP FULL MODAL -->
+<div id="M-map" class="mo">
+  <div class="mb" style="max-width:760px">
+    <button class="mclose" onclick="CM('M-map')">✕</button>
+    <h3 id="mm-title">📍 Service Location</h3>
+    <p class="msub" id="mm-addr"></p>
+    <div id="mm-el"></div>
+    <div style="margin-top:12px;display:flex;gap:7px;flex-wrap:wrap">
+      <a id="mm-gm" href="#" target="_blank" class="btn b-ok" style="text-decoration:none">🗺 Google Maps</a>
+      <a id="mm-wz" href="#" target="_blank" class="btn b-c2" style="text-decoration:none">🚗 Waze</a>
+    </div>
+  </div>
+</div>
+
+<!-- REASSIGN MODAL (admin) -->
+<div id="M-assign" class="mo">
+  <div class="mb" style="max-width:470px">
+    <button class="mclose" onclick="CM('M-assign')">✕</button>
+    <h3>Reassign Request</h3>
+    <p class="msub">Assign or change the IT professional for this request</p>
+    <div class="field"><label>Select IT Professional</label>
+      <select id="assign-pro" class="inp"><option value="">Unassign (make open / pending)</option></select>
+    </div>
+    <div id="assign-err" class="em"></div>
+    <button class="bfull" onclick="submitAssign()">Save Assignment</button>
+  </div>
+</div>
+
+<!-- SETUP GUIDE MODAL -->
+<div id="M-setup" class="mo">
+  <div class="mb mb-lg" style="max-width:700px">
+    <button class="mclose" onclick="CM('M-setup')">✕</button>
+    <h3>⚙️ Firebase Setup Guide</h3>
+    <p class="msub">Copy these rules to fix Google Auth and Chat permissions</p>
+    <div style="display:flex;flex-direction:column;gap:14px">
+
+      <div style="background:var(--cd);border:1px solid rgba(239,68,68,.3);border-radius:12px;padding:18px">
+        <div style="font-family:var(--fh);font-weight:700;color:var(--er);font-size:.9rem;margin-bottom:10px">🔴 Step 1 — Fix Firestore Security Rules</div>
+        <p style="font-size:.81rem;color:var(--mu);margin-bottom:10px">Go to <b>Firebase Console → Firestore → Rules</b> and replace with:</p>
+        <pre style="background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:12px;font-size:.73rem;color:var(--ac2);overflow-x:auto;white-space:pre-wrap">rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAdmin() {
+      return request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Platform settings — any logged-in user can read; only admin writes
+    match /platform/{doc} {
+      allow read: if request.auth != null;
+      allow write: if isAdmin();
+    }
+
+    // User profiles
+    match /users/{userId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null &&
+        (request.auth.uid == userId || isAdmin());
+    }
+
+    // Service Requests
+    match /requests/{requestId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      allow update: if request.auth != null && (
+        isAdmin() ||
+        request.auth.uid == resource.data.requestorId ||
+        request.auth.uid == resource.data.professionalId ||
+        (resource.data.status == 'pending' &&
+         resource.data.professionalId == null &&
+         request.resource.data.professionalId == request.auth.uid)
+      );
+      allow delete: if isAdmin();
+
+      // ✅ MESSAGES SUBCOLLECTION — this fixes the chat permission error
+      match /messages/{msgId} {
+        allow read, write: if request.auth != null;
+      }
+    }
+  }
+}</pre>
+        <button onclick="navigator.clipboard.writeText(document.querySelector('pre').textContent).then(()=>toast('Rules copied!','ok'))" class="btn b-ok" style="margin-top:10px">📋 Copy Rules</button>
+      </div>
+
+      <div style="background:var(--cd);border:1px solid rgba(245,158,11,.3);border-radius:12px;padding:18px">
+        <div style="font-family:var(--fh);font-weight:700;color:var(--wn);font-size:.9rem;margin-bottom:10px">🟡 Step 2 — Enable Google Sign-In</div>
+        <ol style="font-size:.82rem;color:var(--mu);display:flex;flex-direction:column;gap:6px;padding-left:18px">
+          <li>Go to <b>Firebase Console → Authentication → Sign-in method</b></li>
+          <li>Click <b>Google</b> → toggle Enable → choose your project support email → Save</li>
+          <li>Go to <b>Authentication → Settings → Authorized domains</b></li>
+          <li>Add <b>your-username.github.io</b> (or your custom domain)</li>
+        </ol>
+      </div>
+
+      <div style="background:var(--cd);border:1px solid rgba(59,130,246,.25);border-radius:12px;padding:18px">
+        <div style="font-family:var(--fh);font-weight:700;color:var(--ac);font-size:.9rem;margin-bottom:10px">🔵 Step 3 — Create First Admin</div>
+        <ol style="font-size:.82rem;color:var(--mu);display:flex;flex-direction:column;gap:6px;padding-left:18px">
+          <li>Register a normal account through the app</li>
+          <li>Go to <b>Firebase Console → Firestore → users collection</b></li>
+          <li>Find your user document → change <code style="background:var(--sf2);padding:1px 5px;border-radius:4px">role</code> from <code style="background:var(--sf2);padding:1px 5px;border-radius:4px">"requestor"</code> to <code style="background:var(--sf2);padding:1px 5px;border-radius:4px">"admin"</code></li>
+          <li>Log out and back in — you'll see the Admin Dashboard</li>
+          <li>After that, promote others via <b>Admin → Users → Make Admin</b></li>
+        </ol>
+      </div>
+
+      <div style="background:var(--cd);border:1px solid rgba(16,185,129,.25);border-radius:12px;padding:18px">
+        <div style="font-family:var(--fh);font-weight:700;color:var(--ok);font-size:.9rem;margin-bottom:10px">🟢 Required Firestore Indexes</div>
+        <p style="font-size:.81rem;color:var(--mu);margin-bottom:8px">Create these in <b>Firestore → Indexes → Composite</b>:</p>
+        <div style="display:grid;gap:5px;font-size:.77rem">
+          <div style="background:var(--sf2);padding:7px 10px;border-radius:6px;font-family:monospace">requests | requestorId ▲ | createdAt ▼</div>
+          <div style="background:var(--sf2);padding:7px 10px;border-radius:6px;font-family:monospace">requests | status ▲ | createdAt ▼</div>
+          <div style="background:var(--sf2);padding:7px 10px;border-radius:6px;font-family:monospace">requests | professionalId ▲ | createdAt ▼</div>
+        </div>
+        <p style="font-size:.78rem;color:var(--mu);margin-top:8px">💡 Tip: Firebase auto-suggests missing indexes when queries first run — just click the link in your browser console.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GOOGLE AUTH DOMAIN ERROR MODAL -->
+<div id="M-gauth" class="mo">
+  <div class="mb" style="max-width:440px">
+    <button class="mclose" onclick="CM('M-gauth')">✕</button>
+    <div id="M-gauth-body"></div>
+  </div>
+</div>
+
+<!-- NOTIFICATION PERMISSION MODAL -->
+<div id="M-notif" class="mo">
+  <div class="mb" style="max-width:420px">
+    <button class="mclose" onclick="CM('M-notif')">✕</button>
+    <h3>🔔 Enable Notifications</h3>
+    <p class="msub">Get notified when your request is accepted or there's a new message</p>
+    <button class="bfull" onclick="reqNotifPerm()" style="margin-bottom:8px">Enable Notifications</button>
+    <button class="bfull" onclick="CM('M-notif')" style="background:var(--sf2);color:var(--tx)">Not now</button>
+  </div>
+</div>
+
+<!-- QUICK VIEW MODAL (request detail) -->
+<div id="M-view" class="mo">
+  <div class="mb" style="max-width:640px">
+    <button class="mclose" onclick="CM('M-view')">✕</button>
+    <div id="M-view-body"></div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import{getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,onAuthStateChanged,GoogleAuthProvider,signInWithPopup}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import{getFirestore,collection,doc,setDoc,getDoc,getDocs,addDoc,updateDoc,query,where,onSnapshot,orderBy,serverTimestamp,writeBatch}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+/* ══ FIREBASE CONFIG — Replace with yours ══ */
+const FC={apiKey:"AIzaSyD-vvHGNOdKPJVBuKH_87-BaZtt-6uzqZE",authDomain:"it-service-platform.firebaseapp.com",projectId:"it-service-platform",storageBucket:"it-service-platform.firebasestorage.app",messagingSenderId:"37326787755",appId:"1:37326787755:web:cb1cf51e3e339d9b8593ee"};
+const fb=initializeApp(FC);
+const auth=getAuth(fb);
+const db=getFirestore(fb);
+const gProvider=new GoogleAuthProvider();
+gProvider.addScope('profile');
+gProvider.addScope('email');
+gProvider.setCustomParameters({prompt:'select_account'});
+
+/* ══ STATE ══ */
+let CU=null,CP=null;
+let aReqs=[],openReqs=[],myJobs=[],allPros=[],allUsers=[],adminReqs=[];
+let rStFilt='all',rTxtFilt='',pCatFilt='all',pTxtFilt='';
+let uR=null,uO=null,uJ=null,uChat=null;
+let lMap=null,lMkr=null,sLat=null,sLng=null,sAddr='';
+let adMap=null,adMkrs=[],adMapFilt='all';
+let chatRId=null,actRId=null,actType='res',payMeth='cash';
+let assignRId=null;
+let settings={showReqPhone:false,showProPhone:false,allowReqReg:true,allowProReg:true};
+let revealedPh={};
+// Google auth — flag prevents onAuthStateChanged from routing mid-popup
+let googleSigningIn=false;
+let pendingGoogleRole=null;
+
+/* ══ UTILS ══ */
+const $=id=>document.getElementById(id);
+const v=id=>$(id)?.value?.trim()||'';
+const esc=s=>s?String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'):'';
+const fmtD=ts=>ts?.toDate?ts.toDate().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}):'—';
+const fmtT=ts=>{if(!ts?.toDate)return'just now';const d=ts.toDate();return d.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})+' · '+d.toLocaleDateString('en-IN',{day:'2-digit',month:'short'});};
+const stLbl=s=>({pending:'Pending',accepted:'Accepted',inprogress:'In Progress',resolved:'Resolved',cancelled:'Cancelled'}[s]||s);
+const stCls=s=>({pending:'s-p',accepted:'s-a',inprogress:'s-i',resolved:'s-r',cancelled:'s-c'}[s]||'');
+const pClr=p=>({Low:'var(--ok)',Medium:'var(--ac)',High:'var(--wn)',Critical:'var(--er)'}[p]||'var(--mu)');
+const payLbl=m=>({cash:'Cash',phonepay:'PhonePe',gpay:'Google Pay',paytm:'Paytm',bhim:'BHIM UPI',bank:'Bank Transfer',cheque:'Cheque'}[m]||m);
+const empty=msg=>`<div class="empty"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><h4>Nothing here</h4><p>${msg}</p></div>`;
+
+window.SP=p=>{document.querySelectorAll('.page').forEach(e=>e.classList.remove('on'));$('page-'+p).classList.add('on');window.scrollTo(0,0);};
+window.CM=id=>{$(id).classList.remove('on');if(id==='M-chat'&&uChat){uChat();uChat=null;}};
+window.CM_open=id=>{$(id).classList.add('on');};
+window.toast=(msg,type='in')=>{const c=$('TOAST'),t=document.createElement('div');t.className=`tos ${type}`;t.innerHTML=`<span>${msg}</span>`;c.appendChild(t);setTimeout(()=>{t.style.opacity='0';t.style.transition='.4s';setTimeout(()=>t.remove(),400);},3400);};
+document.querySelectorAll('.mo').forEach(m=>m.addEventListener('click',e=>{if(e.target===m){if(m.id==='M-chat'&&uChat){uChat();uChat=null;}m.classList.remove('on');}}));
+
+/* ══ SETTINGS ══ */
+async function loadSettings(){try{const sn=await getDoc(doc(db,'platform','settings'));if(sn.exists())settings={...settings,...sn.data()};}catch(e){}refreshToggles();}
+function refreshToggles(){
+  const tv=(id,val)=>{const el=$(id);if(el)el.classList.toggle('on',!!val);};
+  tv('sv-rph',settings.showReqPhone);tv('sv-pph',settings.showProPhone);
+  tv('sv-rr',settings.allowReqReg!==false);tv('sv-pr',settings.allowProReg!==false);
+  updatePlatStats();
+}
+window.saveSetting=async(key,btn)=>{const nv=btn.classList.toggle('on');settings[key]=nv;await setDoc(doc(db,'platform','settings'),settings,{merge:true});toast('Setting saved','ok');updatePlatStats();};
+function updatePlatStats(){
+  const el=$('plat-stats');if(!el)return;
+  el.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+    <div style="padding:9px;background:var(--sf2);border-radius:8px"><b style="font-family:var(--fh);font-size:1.15rem">${adminReqs.length}</b><div style="color:var(--mu);font-size:.74rem;margin-top:2px">Total Requests</div></div>
+    <div style="padding:9px;background:var(--sf2);border-radius:8px"><b style="font-family:var(--fh);font-size:1.15rem">${allUsers.length}</b><div style="color:var(--mu);font-size:.74rem;margin-top:2px">Total Users</div></div>
+    <div style="padding:9px;background:var(--sf2);border-radius:8px"><b style="font-family:var(--fh);font-size:1.15rem">${allUsers.filter(u=>u.role==='professional').length}</b><div style="color:var(--mu);font-size:.74rem;margin-top:2px">IT Professionals</div></div>
+    <div style="padding:9px;background:var(--sf2);border-radius:8px"><b style="font-family:var(--fh);font-size:1.15rem">${adminReqs.filter(r=>r.payment?.status==='paid').length}</b><div style="color:var(--mu);font-size:.74rem;margin-top:2px">Payments Confirmed</div></div>
+  </div>
+  <div style="padding:9px 11px;background:rgba(59,130,246,.06);border-radius:8px;border:1px solid rgba(59,130,246,.13);font-size:.79rem">
+    📱 Req phone to Pro: <b style="color:${settings.showReqPhone?'var(--ok)':'var(--er)'}">${settings.showReqPhone?'Visible':'Hidden'}</b>
+    &nbsp;|&nbsp; Pro phone to Req: <b style="color:${settings.showProPhone?'var(--ok)':'var(--er)'}">${settings.showProPhone?'Visible':'Hidden'}</b>
+  </div>`;
+}
+
+/* ══ AUTH STATE ══ */
+onAuthStateChanged(auth,async user=>{
+  // Block routing if Google popup is in progress — it handles its own navigation
+  if(googleSigningIn) return;
+  const ls=$('LS');
+  if(user){
+    CU=user;
+    const sn=await getDoc(doc(db,'users',user.uid));
+    if(sn.exists()){
+      CP=sn.data();
+      if(CP.disabled){await signOut(auth);toast('Your account has been disabled. Contact admin.','er');ls.classList.add('hide');setTimeout(()=>ls.style.display='none',500);return;}
+      setupNav(CP);await loadSettings();
+      if(CP.role==='admin'){SP('dash-admin');loadAdminDash();}
+      else if(CP.role==='requestor'){SP('dash-requestor');loadReqDash();}
+      else{SP('dash-professional');loadProDash();}
+    }else{
+      // Authenticated but no profile — show role picker (Google new user)
+      SP('role-pick');
+    }
+  }else{CU=null;CP=null;$('NAV').style.display='none';SP('landing');}
+  ls.classList.add('hide');setTimeout(()=>ls.style.display='none',500);
+});
+function setupNav(p){
+  $('NAV').style.display='flex';
+  $('nav-name').textContent=p.name||p.email;
+  const b=$('nav-bdg');
+  b.textContent=p.role==='admin'?'Admin':p.role==='professional'?'IT Pro':'Requestor';
+  b.className='bdg '+(p.role==='admin'?'ba':p.role==='professional'?'bp':'bu');
+  // Show setup guide button for admin only
+  const sb=$('nav-setup-btn');
+  if(sb)sb.style.display=p.role==='admin'?'inline-flex':'none';
+}
+
+/* ══ GOOGLE SIGN-IN ══ */
+window.googleSignIn=async(defaultRole)=>{
+  googleSigningIn=true; // block onAuthStateChanged during popup
+  try{
+    const result=await signInWithPopup(auth,gProvider);
+    CU=result.user;
+    const sn=await getDoc(doc(db,'users',CU.uid));
+    if(sn.exists()){
+      // Existing user — route normally
+      CP=sn.data();
+      if(CP.disabled){await signOut(auth);toast('Your account has been disabled.','er');googleSigningIn=false;return;}
+      setupNav(CP);await loadSettings();
+      googleSigningIn=false;
+      if(CP.role==='admin'){SP('dash-admin');loadAdminDash();}
+      else if(CP.role==='requestor'){SP('dash-requestor');loadReqDash();}
+      else{SP('dash-professional');loadProDash();}
+    }else{
+      // New Google user — show role picker with default if provided
+      googleSigningIn=false;
+      SP('role-pick');
+      if(defaultRole){
+        pendingGoogleRole=defaultRole;
+        $('rp-extra').style.display='block';
+        $('rp-pro-fields').style.display=defaultRole==='professional'?'block':'none';
+      }
+    }
+  }catch(e){
+    googleSigningIn=false;
+    if(e.code==='auth/unauthorized-domain'){
+      const domain=location.hostname;
+      const msg=`<div style="text-align:center;padding:18px"><div style="font-size:1.4rem;margin-bottom:10px">🔒</div><div style="font-family:var(--fh);font-weight:700;font-size:.95rem;margin-bottom:8px">Domain Not Authorized</div><div style="color:var(--mu);font-size:.82rem;line-height:1.6;max-width:320px;margin:0 auto 14px">Add <b style="color:var(--ac);font-family:monospace">${domain}</b> to your Firebase Console:<br>Authentication → Settings → Authorized Domains</div><button class="bfull" onclick="CM('M-gauth')" style="max-width:200px;margin:0 auto">Got it</button></div>`;
+      $('M-gauth-body').innerHTML=msg;
+      $('M-gauth').classList.add('on');
+    }else if(e.code!=='auth/popup-closed-by-user'&&e.code!=='auth/cancelled-popup-request'){
+      toast('Google sign-in: '+e.message,'er');
+    }
+  }
+};
+window.completeGoogleSetup=role=>{
+  pendingGoogleRole=role;
+  $('rp-extra').style.display='block';
+  $('rp-pro-fields').style.display=role==='professional'?'block':'none';
+};
+window.saveGoogleProfile=async()=>{
+  const err=$('rperr');err.classList.remove('on');
+  if(!CU){err.textContent='Session expired. Please sign in again.';err.classList.add('on');return;}
+  const role=pendingGoogleRole;
+  if(!role){err.textContent='Please choose Requestor or IT Pro above.';err.classList.add('on');return;}
+  const phone=v('RPX-ph'),city=v('RPX-city');
+  if(!phone||!city){err.textContent='Phone and city are required.';err.classList.add('on');return;}
+  await loadSettings();
+  if(role==='requestor'&&settings.allowReqReg===false){err.textContent='Requestor registrations are currently disabled.';err.classList.add('on');return;}
+  if(role==='professional'&&settings.allowProReg===false){err.textContent='IT Pro registrations are currently disabled.';err.classList.add('on');return;}
+  const skill=role==='professional'?v('RPX-skill'):'';
+  const upi=role==='professional'?v('RPX-upi'):'';
+  try{
+    await setDoc(doc(db,'users',CU.uid),{
+      uid:CU.uid,role,name:CU.displayName||CU.email.split('@')[0],email:CU.email,
+      phone,city:city.toLowerCase(),cityDisplay:city,createdAt:serverTimestamp(),disabled:false,
+      photoURL:CU.photoURL||'',
+      ...(role==='requestor'?{org:''}:{skill,experience:'0',available:true,upiId:upi})
+    });
+    pendingGoogleRole=null;
+    toast('Profile complete! Welcome to TechLink.','ok');
+    const sn=await getDoc(doc(db,'users',CU.uid));
+    CP=sn.data();setupNav(CP);await loadSettings();
+    if(CP.role==='requestor'){SP('dash-requestor');loadReqDash();}
+    else{SP('dash-professional');loadProDash();}
+  }catch(e){err.textContent=e.message;err.classList.add('on');}
+};
+
+/* ══ EMAIL REGISTER ══ */
+window.doReg=async role=>{
+  const eid=role==='requestor'?'Rerr':'Perr',err=$(eid);err.classList.remove('on');
+  await loadSettings();
+  if(role==='requestor'&&settings.allowReqReg===false){err.textContent='Requestor registrations are currently disabled.';err.classList.add('on');return;}
+  if(role==='professional'&&settings.allowProReg===false){err.textContent='IT Pro registrations are currently disabled.';err.classList.add('on');return;}
+  let d={};
+  if(role==='requestor')d={name:v('RN'),email:v('RE'),phone:v('RP'),org:v('RO'),city:v('RC'),pw:v('RPW')};
+  else d={name:v('PN'),email:v('PE'),phone:v('PP'),skill:v('PSK'),city:v('PC'),exp:v('PEX'),upi:v('PUPI'),pw:v('PPW')};
+  if(!d.name||!d.email||!d.pw||!d.city){err.textContent='Fill all required fields.';err.classList.add('on');return;}
+  if(d.pw.length<6){err.textContent='Password min 6 characters.';err.classList.add('on');return;}
+  try{
+    const cr=await createUserWithEmailAndPassword(auth,d.email,d.pw);
+    await setDoc(doc(db,'users',cr.user.uid),{uid:cr.user.uid,role,name:d.name,email:d.email,phone:d.phone||'',city:d.city.toLowerCase(),cityDisplay:d.city,createdAt:serverTimestamp(),disabled:false,
+      ...(role==='requestor'?{org:d.org||''}:{skill:d.skill,experience:d.exp||'0',available:true,upiId:d.upi||''})});
+    toast('Account created! Welcome.','ok');
+  }catch(e){err.textContent=e.message;err.classList.add('on');}
+};
+
+/* ══ LOGIN / LOGOUT ══ */
+window.doLogin=async()=>{
+  const err=$('Lerr');err.classList.remove('on');
+  const em=v('LE'),pw=$('LP').value;
+  if(!em||!pw){err.textContent='Enter email and password.';err.classList.add('on');return;}
+  try{await signInWithEmailAndPassword(auth,em,pw);}
+  catch(e){err.textContent='Invalid email or password.';err.classList.add('on');}
+};
+window.logout=async()=>{[uR,uO,uJ,uChat].forEach(u=>u&&u());await signOut(auth);SP('landing');};
+
+/* ══ MAP PICKER ══ */
+function initLMap(){
+  if(lMap)return;
+  lMap=L.map('lmap').setView([15.3519,76.1547],12);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OSM',maxZoom:19}).addTo(lMap);
+  lMap.on('click',e=>dropPin(e.latlng.lat,e.latlng.lng));
+}
+function dropPin(lat,lng){
+  sLat=lat;sLng=lng;
+  if(lMkr)lMap.removeLayer(lMkr);
+  lMkr=L.marker([lat,lng],{icon:mkrIc('#3b82f6')}).addTo(lMap);
+  lMap.setView([lat,lng],15);
+  $('lcoords').style.display='flex';
+  $('coord-txt').textContent=`${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+  fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+    .then(r=>r.json()).then(d=>{sAddr=d.display_name||'';$('addr-txt').textContent=sAddr.split(',').slice(0,3).join(',');}).catch(()=>{sAddr='';});
+}
+window.doGPS=()=>{
+  const btn=$('gps-btn');
+  if(!navigator.geolocation){toast('GPS not supported','er');return;}
+  btn.classList.add('busy');btn.textContent='⏳ Locating…';
+  navigator.geolocation.getCurrentPosition(p=>{
+    btn.classList.remove('busy');btn.textContent='📡 Use My Location';
+    initLMap();dropPin(p.coords.latitude,p.coords.longitude);toast('Location pinned!','ok');
+  },e=>{btn.classList.remove('busy');btn.textContent='📡 Use My Location';toast('GPS error: '+e.message,'er');},{enableHighAccuracy:true,timeout:12000});
+};
+function mkrIc(c,s=26){return L.divIcon({className:'',html:`<div style="width:${s}px;height:${s}px;background:${c};border:3px solid #fff;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 8px rgba(0,0,0,.4)"></div>`,iconSize:[s,s],iconAnchor:[s/2,s]});}
+function stIc(st){const c={pending:'#f59e0b',accepted:'#3b82f6',inprogress:'#06b6d4',resolved:'#10b981',cancelled:'#ef4444'}[st]||'#64748b';return mkrIc(c,22);}
+
+/* ══ SUBMIT REQUEST ══ */
+window.submitReq=async()=>{
+  const err=$('NRerr');err.classList.remove('on');
+  const t=v('NRT'),cat=v('NRC'),pr=v('NRPR'),loc=v('NRL'),desc=v('NRD');
+  if(!t||!cat||!loc||!desc){err.textContent='Fill all fields.';err.classList.add('on');return;}
+  if(!sLat||!sLng){err.textContent='Please pin a location on the map.';err.classList.add('on');return;}
+  try{
+    await addDoc(collection(db,'requests'),{title:t,category:cat,priority:pr,location:loc,desc,lat:sLat,lng:sLng,address:sAddr,
+      requestorId:CU.uid,requestorName:CP.name,requestorPhone:CP.phone||'',requestorOrg:CP.org||'',requestorCity:CP.city,requestorCityDisplay:CP.cityDisplay,
+      status:'pending',professionalId:null,professionalName:null,professionalPhone:'',resolution:null,payment:null,cancellation:null,createdByAdmin:false,
+      createdAt:serverTimestamp(),updatedAt:serverTimestamp()});
+    toast('Request submitted!','ok');sLat=null;sLng=null;sAddr='';
+    if(lMkr){lMap.removeLayer(lMkr);lMkr=null;}
+    $('lcoords').style.display='none';
+    ['NRT','NRL','NRD'].forEach(id=>$(id).value='');
+    rTab('my',null);
+  }catch(e){err.textContent=e.message;err.classList.add('on');}
+};
+
+/* ══ ADMIN CREATE REQUEST ══ */
+window.adminCreateReq=async()=>{
+  const err=$('ACerr');err.classList.remove('on');
+  const reqId=v('AC-req'),title=v('AC-title'),cat=v('AC-cat'),pr=v('AC-pr'),proId=v('AC-pro'),loc=v('AC-loc'),desc=v('AC-desc');
+  if(!reqId||!title||!cat||!loc||!desc){err.textContent='Fill all required fields.';err.classList.add('on');return;}
+  const ru=allUsers.find(u=>(u.uid||u.id)===reqId);
+  const pu=proId?allUsers.find(u=>(u.uid||u.id)===proId):null;
+  if(!ru){err.textContent='Requestor not found.';err.classList.add('on');return;}
+  try{
+    const ref=await addDoc(collection(db,'requests'),{title,category:cat,priority:pr,location:loc,desc,lat:null,lng:null,address:loc,
+      requestorId:ru.uid,requestorName:ru.name,requestorPhone:ru.phone||'',requestorOrg:ru.org||'',requestorCity:ru.city,requestorCityDisplay:ru.cityDisplay,
+      status:pu?'accepted':'pending',professionalId:pu?pu.uid:null,professionalName:pu?pu.name:null,professionalPhone:pu?pu.phone||'':'',
+      resolution:null,payment:null,cancellation:null,createdByAdmin:true,
+      createdAt:serverTimestamp(),updatedAt:serverTimestamp()});
+    await sysMsg(ref.id,`📋 Request created by Admin (${CP.name}) on behalf of ${ru.name}`);
+    if(pu)await sysMsg(ref.id,`🤝 Assigned to ${pu.name} by Admin`);
+    toast('Request created!','ok');
+    ['AC-title','AC-loc','AC-desc'].forEach(id=>$(id).value='');
+    $('AC-req').value='';$('AC-pro').value='';$('AC-cat').value='';
+    aTab('reqs',null);
+  }catch(e){err.textContent=e.message;err.classList.add('on');}
+};
+
+/* ══ CHAT ══ */
+window.openChat=async rid=>{
+  const r=[...aReqs,...openReqs,...myJobs,...adminReqs].find(x=>x.id===rid);
+  if(!r){toast('Request not found','er');return;}
+  chatRId=rid;
+  $('ch-ttl').textContent=r.title;
+  $('ch-st').innerHTML=`<span class="st ${stCls(r.status)}">${stLbl(r.status)}</span>`;
+  $('ch-cat').textContent=r.category;
+  $('ch-who').textContent=`${r.requestorName}${r.professionalName?' ↔ '+r.professionalName:''}`;
+  $('M-chat').classList.add('on');
+  $('ch-msgs').innerHTML='<div style="text-align:center;padding:40px"><div class="ring" style="margin:0 auto"></div></div>';
+  if(uChat)uChat();
+  try{
+    const q=query(collection(db,'requests',rid,'messages'),orderBy('createdAt','asc'));
+    uChat=onSnapshot(q,
+      sn=>renderMsgs(sn.docs.map(d=>({id:d.id,...d.data()}))),
+      err=>{
+        // Firestore permission error on messages subcollection
+        $('ch-msgs').innerHTML=`<div class="empty" style="padding:30px">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <h4>Permission Error</h4>
+          <p style="font-size:.8rem;max-width:360px;margin:6px auto 0">Update your <b>Firestore Rules</b> to allow the messages subcollection. See the SETUP guide for the correct rules.</p>
+          <div style="margin-top:10px;padding:9px 13px;background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.18);border-radius:8px;font-family:monospace;font-size:.72rem;text-align:left;color:var(--er)">
+            match /requests/{rid}/messages/{mid} {<br>
+            &nbsp;&nbsp;allow read,write: if request.auth != null;<br>
+            }
+          </div>
+        </div>`;
+        $('ch-msgs').parentElement.querySelector('.cin-w')?.style.setProperty('display','none');
+      }
+    );
+  }catch(e){toast('Chat error: '+e.message,'er');}
+};
+function renderMsgs(msgs){
+  const c=$('ch-msgs');
+  if(!msgs.length){c.innerHTML='<div class="empty" style="padding:36px"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><h4>No messages yet</h4><p>Start the conversation below</p></div>';return;}
+  c.innerHTML=msgs.map(m=>{
+    if(m.type==='system')return`<div class="cm csys"><div class="cbub">⚡ ${esc(m.text)}</div></div>`;
+    const mine=m.senderId===CU.uid;
+    const ac=m.senderRole==='professional'?'pro':m.senderRole==='admin'?'adm':'req';
+    const roleTag=m.senderRole==='professional'?'IT Pro':m.senderRole==='admin'?'Admin':'Requestor';
+    return`<div class="cm ${mine?'me':''}">
+      <div class="cav ${ac}">${(m.senderName||'?').charAt(0)}</div>
+      <div style="min-width:0">
+        ${!mine?`<div class="csn">${esc(m.senderName)} · ${roleTag}</div>`:''}
+        <div class="cbub">${esc(m.text)}</div>
+        <div class="ct">${fmtT(m.createdAt)}</div>
+      </div>
+    </div>`;
+  }).join('');
+  c.scrollTop=c.scrollHeight;
+}
+window.sendMsg=async()=>{
+  const inp=$('cin'),text=inp.value.trim();
+  if(!text||!chatRId)return;
+  inp.value='';inp.style.height='auto';
+  const btn=inp.nextElementSibling;
+  btn.disabled=true;
+  try{
+    await addDoc(collection(db,'requests',chatRId,'messages'),{
+      text,type:'message',
+      senderId:CU.uid,senderName:CP.name,senderRole:CP.role,
+      createdAt:serverTimestamp()
+    });
+    // Mark request as having new activity
+    await updateDoc(doc(db,'requests',chatRId),{lastMsgAt:serverTimestamp(),lastMsgBy:CP.name,lastMsgRole:CP.role});
+  }catch(e){toast('Send failed: '+e.message,'er');}
+  finally{btn.disabled=false;inp.focus();}
+};
+async function sysMsg(rid,text){
+  try{await addDoc(collection(db,'requests',rid,'messages'),{text,type:'system',senderId:'system',senderName:'System',senderRole:'system',createdAt:serverTimestamp()});}catch(e){}
+}
+
+/* ══ ACTION MODAL ══ */
+window.openActModal=(rid,def='res')=>{
+  actRId=rid;
+  const isReq=CP.role==='requestor';
+  $('act-tabs').style.display=isReq?'none':'grid';
+  if(isReq){setAT('can',null);$('act-title').textContent='Cancel Request';}
+  else $('act-title').textContent='Close Request';
+  setAT(def,document.querySelector(`.atab.${def}`));
+  ['act-rem','act-dur','act-txn','act-reason'].forEach(id=>{const el=$(id);if(el)el.value='';});
+  $('act-amt').value='';$('act-pst').value='paid';$('act-err').classList.remove('on');
+  pickPay('cash',document.querySelector('.pay-m'));
+  $('M-action').classList.add('on');
+};
+window.setAT=(t,el)=>{
+  actType=t;
+  document.querySelectorAll('.atab').forEach(x=>x.classList.remove('on'));
+  if(el)el.classList.add('on');
+  else document.querySelectorAll('.atab').forEach(x=>{if(x.getAttribute('onclick')?.includes(`'${t}'`))x.classList.add('on');});
+  $('act-res-f').style.display=t==='res'?'block':'none';
+  $('act-can-f').style.display=t==='can'?'block':'none';
+  const btn=$('act-btn');
+  btn.textContent=t==='res'?'Submit & Mark Resolved':'Submit & Cancel Request';
+  btn.style.background=t==='can'?'linear-gradient(135deg,#ef4444,#dc2626)':'linear-gradient(135deg,var(--ac),#2563eb)';
+};
+window.pickPay=(m,el)=>{
+  payMeth=m;
+  document.querySelectorAll('.pay-m').forEach(x=>x.classList.remove('sel'));
+  if(el)el.classList.add('sel');
+  else document.querySelectorAll('.pay-m').forEach(x=>{if(x.getAttribute('onclick')?.includes(`'${m}'`))x.classList.add('sel');});
+};
+window.submitAction=async()=>{
+  const err=$('act-err');err.classList.remove('on');
+  if(!actRId){err.textContent='No request selected.';err.classList.add('on');return;}
+  if(actType==='can'){
+    const reason=v('act-reason');
+    if(!reason){err.textContent='Provide a cancellation reason.';err.classList.add('on');return;}
+    try{
+      await updateDoc(doc(db,'requests',actRId),{status:'cancelled',updatedAt:serverTimestamp(),
+        cancellation:{reason,cancelledBy:CP.name,cancelledByRole:CP.role,cancelledAt:serverTimestamp()}});
+      await sysMsg(actRId,`❌ Cancelled by ${CP.name} (${CP.role}). Reason: ${reason}`);
+      toast('Request cancelled.','in');CM('M-action');
+    }catch(e){err.textContent=e.message;err.classList.add('on');}
+    return;
+  }
+  const rem=v('act-rem'),dur=v('act-dur'),amt=v('act-amt'),txn=v('act-txn'),pst=v('act-pst');
+  if(!rem){err.textContent='Enter resolution remarks.';err.classList.add('on');return;}
+  const pay={method:payMeth,amount:amt?parseFloat(amt):0,status:pst,txnRef:txn,recordedAt:serverTimestamp()};
+  const res={remarks:rem,duration:dur,resolvedBy:CP.name,resolvedAt:serverTimestamp()};
+  try{
+    await updateDoc(doc(db,'requests',actRId),{status:'resolved',updatedAt:serverTimestamp(),resolution:res,payment:pay});
+    const pm=pay.amount>0?`💰 ₹${pay.amount} via ${payLbl(pay.method)} — ${pst==='paid'?'Paid ✓':'Pending'}`:' 🆓 Waived/Free';
+    await sysMsg(actRId,`✅ Resolved by ${CP.name}. ${rem.substring(0,80)}${rem.length>80?'…':''}`);
+    await sysMsg(actRId,pm);
+    toast('Request resolved!','ok');CM('M-action');
+  }catch(e){err.textContent=e.message;err.classList.add('on');}
+};
+
+/* ══ STATUS UPDATE ══ */
+window.updSt=async(id,st,proId)=>{
+  try{
+    const u={status:st,updatedAt:serverTimestamp()};
+    if(proId){u.professionalId=proId;u.professionalName=CP.name;u.professionalPhone=CP.phone||'';}
+    await updateDoc(doc(db,'requests',id),u);
+    const msgs={accepted:`🤝 Accepted by ${CP.name}`,inprogress:`🔧 Work started by ${CP.name}`};
+    if(msgs[st])await sysMsg(id,msgs[st]);
+    toast(stLbl(st),'ok');
+  }catch(e){toast('Error: '+e.message,'er');}
+};
+window.acceptReq=id=>updSt(id,'accepted',CU.uid);
+
+/* ══ FULL MAP MODAL ══ */
+window.openMapFull=id=>{
+  const r=[...aReqs,...openReqs,...myJobs,...adminReqs].find(x=>x.id===id);
+  if(!r||!r.lat||!r.lng){toast('No map location for this request','in');return;}
+  $('mm-title').textContent='📍 '+r.title;
+  $('mm-addr').textContent=r.address||`${r.lat.toFixed(5)}, ${r.lng.toFixed(5)}`;
+  $('mm-gm').href=`https://www.google.com/maps?q=${r.lat},${r.lng}`;
+  $('mm-wz').href=`https://waze.com/ul?ll=${r.lat},${r.lng}&navigate=yes`;
+  $('M-map').classList.add('on');
+  setTimeout(()=>{
+    const c=$('mm-el');c.innerHTML='';
+    const el=document.createElement('div');el.style.cssText='height:420px;border-radius:8px;overflow:hidden;border:1px solid var(--bd)';
+    c.appendChild(el);
+    const m=L.map(el).setView([r.lat,r.lng],16);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(m);
+    L.marker([r.lat,r.lng],{icon:stIc(r.status)}).addTo(m).bindPopup(`<b>${r.title}</b><br>${r.address||''}`).openPopup();
+  },100);
+};
+
+/* ══ REASSIGN (admin) ══ */
+window.openAssign=id=>{
+  assignRId=id;
+  const sel=$('assign-pro');
+  sel.innerHTML='<option value="">Unassign (make open/pending)</option>';
+  allUsers.filter(u=>u.role==='professional'&&!u.disabled).forEach(p=>{
+    const o=document.createElement('option');o.value=p.uid||p.id;o.textContent=`${p.name} — ${p.skill||''} — ${p.cityDisplay||p.city}`;sel.appendChild(o);
+  });
+  $('assign-err').classList.remove('on');
+  $('M-assign').classList.add('on');
+};
+window.submitAssign=async()=>{
+  const err=$('assign-err');err.classList.remove('on');
+  const proId=v('assign-pro');
+  const pu=proId?allUsers.find(u=>(u.uid||u.id)===proId):null;
+  try{
+    await updateDoc(doc(db,'requests',assignRId),{professionalId:pu?pu.uid:null,professionalName:pu?pu.name:null,professionalPhone:pu?pu.phone||'':'',status:pu?'accepted':'pending',updatedAt:serverTimestamp()});
+    await sysMsg(assignRId,pu?`⚙️ Reassigned to ${pu.name} by Admin`:`⚙️ Unassigned by Admin — request reopened`);
+    toast(pu?`Assigned to ${pu.name}`:'Request unassigned','ok');CM('M-assign');
+  }catch(e){err.textContent=e.message;err.classList.add('on');}
+};
+
+/* ══ PHONE REVEAL ══ */
+window.revealPh=async(rid,field,dispId)=>{
+  const key=rid+'_'+field;
+  if(revealedPh[key]){return;}
+  revealedPh[key]=true;
+  const r=[...aReqs,...myJobs,...adminReqs].find(x=>x.id===rid);
+  if(!r)return;
+  const ph=field==='req'?r.requestorPhone:r.professionalPhone;
+  const el=$(dispId);
+  if(el)el.outerHTML=`<span class="ph-show" id="${dispId}">📞 ${ph||'Not provided'}</span>`;
+};
+
+/* ══ CARD RENDERERS ══ */
+function phoneBlock(r,role){
+  if(!r||!role)return'';
+  if(role==='professional'&&['accepted','inprogress','resolved'].includes(r.status)&&settings.showReqPhone&&r.requestorPhone){
+    const pid=`ph-${r.id}-r`;
+    if(revealedPh[r.id+'_req'])return`<span class="ph-show">📞 ${r.requestorPhone}</span>`;
+    return`<span class="ph-hide" id="${pid}" onclick="revealPh('${r.id}','req','${pid}')">👁 Tap to reveal requestor phone</span>`;
+  }
+  if(role==='requestor'&&r.professionalName&&settings.showProPhone&&r.professionalPhone){
+    const pid=`ph-${r.id}-p`;
+    if(revealedPh[r.id+'_pro'])return`<span class="ph-show">📞 ${r.professionalPhone}</span>`;
+    return`<span class="ph-hide" id="${pid}" onclick="revealPh('${r.id}','pro','${pid}')">👁 Tap to reveal IT Pro phone</span>`;
+  }
+  if(role==='admin')return`<span class="ph-show" style="font-size:.74rem">📞 Req: ${r.requestorPhone||'—'}${r.professionalPhone?' | Pro: '+r.professionalPhone:''}</span>`;
+  return'';
+}
+function resBlock(r){
+  if(r.resolution)return`<div class="res-card"><h4>✅ Resolution Summary</h4>
+    <div class="rrow"><label>Resolved by</label><span>${esc(r.resolution.resolvedBy)}</span></div>
+    <div class="rrow"><label>Work done</label><span>${esc(r.resolution.remarks)}</span></div>
+    ${r.resolution.duration?`<div class="rrow"><label>Duration</label><span>${r.resolution.duration}</span></div>`:''}
+    ${r.payment?`<div class="rrow"><label>Payment</label><span>${r.payment.amount>0?`₹${r.payment.amount} via ${payLbl(r.payment.method)} &nbsp;<span class="pay-badge ${r.payment.status==='paid'?'pb-paid':r.payment.status==='waived'?'pb-free':'pb-pend'}">${r.payment.status==='paid'?'Paid ✓':r.payment.status==='waived'?'Free':'Pending'}</span>`:'🆓 Waived / Free'}${r.payment.txnRef?` · <span style="font-size:.74rem;color:var(--mu)">Ref: ${esc(r.payment.txnRef)}</span>`:''}</span></div>`:''}</div>`;
+  if(r.cancellation)return`<div class="can-card"><h4>❌ Cancelled</h4>
+    <div class="rrow"><label>Reason</label><span>${esc(r.cancellation.reason)}</span></div>
+    <div class="rrow"><label>By</label><span>${esc(r.cancellation.cancelledBy)} (${r.cancellation.cancelledByRole})</span></div></div>`;
+  return'';
+}
+function lastMsgLine(r){
+  if(!r.lastMsgAt||!r.lastMsgBy)return'';
+  const who=r.lastMsgRole==='professional'?'IT Pro':r.lastMsgRole==='admin'?'Admin':'Requestor';
+  return`<div style="margin-top:8px;font-size:.73rem;color:var(--mu);display:flex;align-items:center;gap:5px;padding:5px 9px;background:rgba(6,182,212,.06);border-radius:6px;border:1px solid rgba(6,182,212,.14)">
+    💬 Last msg: <b style="color:var(--tx)">${esc(r.lastMsgBy)}</b> (${who}) · ${fmtT(r.lastMsgAt)}
+  </div>`;
+}
+function card(r,role){
+  const canChat=['accepted','inprogress','resolved','cancelled'].includes(r.status);
+  const isAdm=role==='admin';
+  const ph=phoneBlock(r,role);
+  return`<div class="rc">
+    <div class="rct">
+      <div>
+        <div class="rtl">${esc(r.title)}${r.createdByAdmin?'<span class="admin-tag">Admin</span>':''}</div>
+        <div class="rm">
+          <span>📍 ${r.requestorCityDisplay||r.location}</span>
+          <span>🗂 ${r.category}</span>
+          <span>📅 ${fmtD(r.createdAt)}</span>
+          <span style="color:${pClr(r.priority)}">● ${r.priority}</span>
+        </div>
+      </div>
+      <span class="st ${stCls(r.status)}">${stLbl(r.status)}</span>
+    </div>
+    <div class="rd">${esc(r.desc)}</div>
+    ${r.address?`<div style="margin-top:6px;font-size:.74rem;color:var(--mu)">📍 ${r.address.split(',').slice(0,3).join(',')}</div>`:''}
+    ${r.professionalName?`<div style="margin-top:6px;font-size:.78rem;color:var(--mu)">👨‍💻 Pro: <span style="color:var(--ac)">${r.professionalName}</span></div>`:''}
+    ${ph?`<div style="margin-top:8px">${ph}</div>`:''}
+    ${canChat||isAdm?lastMsgLine(r):''}
+    ${resBlock(r)}
+    <div class="ra">
+      ${r.lat?`<button class="btn b-ac" onclick="openMapFull('${r.id}')">🗺 Map</button>`:''}
+      ${canChat||isAdm?`<button class="btn b-c2" onclick="openChat('${r.id}')">💬 Chat</button>`:''}
+      ${isAdm?`<button class="btn b-pu" onclick="openAssign('${r.id}')">⟳ Reassign</button>`:''}
+      ${isAdm&&r.status!=='resolved'&&r.status!=='cancelled'?`<button class="btn b-ok" onclick="aForceSt('${r.id}','resolved')">✓ Resolve</button><button class="btn b-er" onclick="aForceSt('${r.id}','cancelled')">✕ Cancel</button>`:''}
+      ${r.status==='pending'&&role==='requestor'?`<button class="btn b-er" onclick="openActModal('${r.id}','can')">✕ Cancel</button>`:''}
+    <div style="display:flex;gap:6px;margin-top:6px">
+      <button class="btn b-nt" style="font-size:.71rem" onclick="openQuickView('${r.id}','${role||CP?.role||''}')">👁 Details</button>
+      ${role==='requestor'&&r.status==='resolved'&&!r.rating?`<button class="btn b-wn" style="font-size:.71rem" onclick="openRating('${r.id}')">⭐ Rate</button>`:''}
+      ${r.rating?`<span style="font-size:.74rem;color:var(--wn)">${'⭐'.repeat(r.rating)} (${r.rating}/5)</span>`:''}
+    </div>
+    ${activityFeed(r)}
+  </div>`;
+}
+function openCard(r){
+  return`<div class="rc">
+    <div class="rct">
+      <div>
+        <div class="rtl">${esc(r.title)}</div>
+        <div class="rm"><span>📍 ${r.requestorCityDisplay||r.location}</span><span>🗂 ${r.category}</span><span>📅 ${fmtD(r.createdAt)}</span><span style="color:${pClr(r.priority)}">● ${r.priority}</span></div>
+      </div>
+      <span class="st s-p">Pending</span>
+    </div>
+    <div class="rd">${esc(r.desc)}</div>
+    ${r.address?`<div style="margin-top:7px;font-size:.74rem;color:var(--mu)">📍 ${r.address.split(',').slice(0,3).join(',')}</div>`:''}
+    <div style="margin-top:6px;font-size:.78rem;color:var(--mu)">By: <b style="color:var(--tx)">${r.requestorName}</b>${r.requestorOrg?' · '+r.requestorOrg:''}</div>
+    <div class="ra">
+      ${r.lat?`<button class="btn b-ac" onclick="openMapFull('${r.id}')">🗺 Location</button>`:''}
+      <button class="btn b-ok" onclick="acceptReq('${r.id}')">✓ Accept</button>
+    </div>
+    ${activityFeed(r)}
+  </div>`;
+}
+function jobCard(r){
+  const ph=phoneBlock(r,'professional');
+  return`<div class="rc">
+    <div class="rct">
+      <div>
+        <div class="rtl">${esc(r.title)}</div>
+        <div class="rm"><span>📍 ${r.requestorCityDisplay||r.location}</span><span>🗂 ${r.category}</span><span>📅 ${fmtD(r.updatedAt)}</span><span style="color:${pClr(r.priority)}">● ${r.priority}</span></div>
+      </div>
+      <span class="st ${stCls(r.status)}">${stLbl(r.status)}</span>
+    </div>
+    <div class="rd">${esc(r.desc)}</div>
+    ${r.address?`<div style="margin-top:7px;font-size:.74rem;color:var(--mu)">📍 ${r.address.split(',').slice(0,3).join(',')}</div>`:''}
+    <div style="margin-top:6px;font-size:.78rem;color:var(--mu)">Requestor: <b style="color:var(--tx)">${r.requestorName}</b></div>
+    ${ph?`<div style="margin-top:8px">${ph}</div>`:''}
+    ${resBlock(r)}
+    <div class="ra">
+      ${r.lat?`<button class="btn b-ac" onclick="openMapFull('${r.id}')">🗺 Navigate</button>`:''}
+      <button class="btn b-nt" style="font-size:.71rem" onclick="openQuickView('${r.id}','professional')">👁 Details</button>
+      <button class="btn b-c2" onclick="openChat('${r.id}')">💬 Chat</button>
+      ${r.status==='accepted'?`<button class="btn b-c2" onclick="updSt('${r.id}','inprogress',null)">▶ Start Work</button>`:''}
+      ${r.status==='inprogress'?`<button class="btn b-ok" onclick="openActModal('${r.id}','res')">✓ Resolve</button>`:''}
+      ${['accepted','inprogress'].includes(r.status)?`<button class="btn b-er" onclick="openActModal('${r.id}','can')">✕ Cancel</button>`:''}
+    </div>
+  </div>`;
+}
+
+/* ══ REQUESTOR DASH ══ */
+function loadReqDash(){
+  $('r-wel').textContent=`Welcome back, ${(CP.name||'').split(' ')[0]} 👋`;
+  buildMobNav('requestor');
+  watchBadges();
+  if(uR)uR();
+  uR=onSnapshot(query(collection(db,'requests'),where('requestorId','==',CU.uid),orderBy('createdAt','desc')),sn=>{
+    aReqs=sn.docs.map(d=>({id:d.id,...d.data()}));
+    rStats();rRender();rRec();
+  });
+  loadAllPros();
+}
+function rStats(){
+  ['pending','accepted','inprogress','resolved'].forEach(s=>$('rs-'+s[0]).textContent=aReqs.filter(r=>r.status===s).length);
+  const act=aReqs.filter(r=>['pending','accepted','inprogress'].includes(r.status)).length;
+  $('r-cnt').textContent=act;$('r-cnt').style.display=act?'inline':'none';
+}
+function rRender(){
+  let list=[...aReqs];
+  if(rStFilt!=='all')list=list.filter(r=>r.status===rStFilt);
+  if(rTxtFilt)list=list.filter(r=>r.title.toLowerCase().includes(rTxtFilt)||r.category.toLowerCase().includes(rTxtFilt));
+  $('r-mylist').innerHTML=list.length?list.map(r=>card(r,'requestor')).join(''):empty('No requests found');
+}
+function rRec(){$('r-rec').innerHTML=aReqs.slice(0,4).map(r=>card(r,'requestor')).join('')||empty('No requests yet');}
+window.rTF=t=>{rTxtFilt=t.toLowerCase();rRender();};
+window.rSF=(st,el)=>{rStFilt=st;document.querySelectorAll('#rt-my .fch').forEach(c=>c.classList.remove('on'));if(el)el.classList.add('on');rRender();};
+
+/* ══ PROFESSIONAL DASH ══ */
+function loadProDash(){
+  $('p-wel').textContent=`Welcome, ${(CP.name||'').split(' ')[0]} 👋`;
+  buildMobNav('professional');
+  watchBadges();
+  renderPProf();
+  if(uO)uO();
+  uO=onSnapshot(query(collection(db,'requests'),where('status','==','pending'),orderBy('createdAt','desc')),sn=>{
+    openReqs=sn.docs.map(d=>({id:d.id,...d.data()}));
+    $('ps-o').textContent=openReqs.length;$('p-cnt').textContent=openReqs.length;$('p-cnt').style.display=openReqs.length?'inline':'none';
+    pRenderOpen();
+  });
+  if(uJ)uJ();
+  uJ=onSnapshot(query(collection(db,'requests'),where('professionalId','==',CU.uid),orderBy('createdAt','desc')),sn=>{
+    myJobs=sn.docs.map(d=>({id:d.id,...d.data()}));
+    $('ps-a').textContent=myJobs.filter(r=>r.status==='accepted').length;
+    $('ps-i').textContent=myJobs.filter(r=>r.status==='inprogress').length;
+    $('ps-r').textContent=myJobs.filter(r=>r.status==='resolved').length;
+    $('p-joblist').innerHTML=myJobs.length?myJobs.map(r=>jobCard(r)).join(''):empty('No jobs yet');
+  });
+}
+let curOpen=[];
+function pRenderOpen(){
+  curOpen=[...openReqs];
+  if(pCatFilt!=='all')curOpen=curOpen.filter(r=>r.category===pCatFilt);
+  if(pTxtFilt)curOpen=curOpen.filter(r=>r.title.toLowerCase().includes(pTxtFilt)||(r.requestorCityDisplay||'').toLowerCase().includes(pTxtFilt));
+  const h=curOpen.length?curOpen.map(r=>openCard(r)).join(''):empty('No open requests right now');
+  $('p-openlist').innerHTML=h;
+  $('p-ovopen').innerHTML=curOpen.slice(0,3).map(r=>openCard(r)).join('')||empty('No open requests');
+}
+window.pOS=t=>{pTxtFilt=t.toLowerCase();pRenderOpen();};
+window.pOC=(cat,el)=>{pCatFilt=cat;document.querySelectorAll('#pt-open .fch').forEach(c=>c.classList.remove('on'));if(el)el.classList.add('on');pRenderOpen();};
+function renderPProf(){
+  const p=CP;
+  $('p-profbody').innerHTML=`
+    <div style="display:flex;align-items:center;gap:13px;margin-bottom:17px">
+      ${p.photoURL?`<img src="${p.photoURL}" style="width:46px;height:46px;border-radius:50%;object-fit:cover;border:2px solid var(--bd)">`:`<div class="pav" style="width:46px;height:46px;font-size:1rem">${(p.name||'?').charAt(0)}</div>`}
+      <div><div style="font-family:var(--fh);font-weight:800;font-size:1.03rem">${p.name||'—'}</div>
+      <div style="color:var(--ac2);font-size:.79rem">${p.skill||'IT Professional'}</div></div>
+    </div>
+    <div style="display:grid;gap:7px;font-size:.85rem">
+      <div><span style="color:var(--mu)">Email: </span>${p.email}</div>
+      <div><span style="color:var(--mu)">Phone: </span>${p.phone||'—'}</div>
+      <div><span style="color:var(--mu)">City: </span>${p.cityDisplay||p.city}</div>
+      <div><span style="color:var(--mu)">Experience: </span>${p.experience||'—'} years</div>
+      ${p.upiId?`<div><span style="color:var(--mu)">UPI: </span><span style="font-family:monospace;color:var(--ac2)">${p.upiId}</span></div>`:''}
+      ${p.avgRating?`<div><span style="color:var(--mu)">Rating: </span><span style="color:var(--wn)">⭐ ${p.avgRating}/5</span> <span style="color:var(--mu);font-size:.8rem">(${p.totalRatings} reviews)</span></div>`:''}
+    </div>`;
+  $('avail-tgl').classList.toggle('on',!!p.available);
+}
+window.toggleAvail=async()=>{
+  const nv=!CP.available;
+  await updateDoc(doc(db,'users',CU.uid),{available:nv});
+  CP.available=nv;renderPProf();
+  toast(nv?'You are now Available':'Set to Unavailable','in');
+};
+
+/* ══ ADMIN DASH ══ */
+function loadAdminDash(){
+  buildMobNav('admin');
+  watchBadges();
+  if(uR)uR();
+  uR=onSnapshot(query(collection(db,'requests'),orderBy('createdAt','desc')),sn=>{
+    adminReqs=sn.docs.map(d=>({id:d.id,...d.data()}));
+    aStats();aRec();aReqRender();aMapUpdate();updatePlatStats();
+    const p=adminReqs.filter(r=>r.status==='pending').length;
+    $('a-cnt').textContent=p;$('a-cnt').style.display=p?'inline':'none';
+  });
+  getDocs(query(collection(db,'users'))).then(sn=>{
+    allUsers=sn.docs.map(d=>({id:d.id,...d.data()}));
+    $('as-u').textContent=allUsers.length;
+    aUsersRender(allUsers);aProfsRender(allUsers.filter(u=>u.role==='professional'));
+    // populate create-request dropdowns
+    const rs=$('AC-req');rs.innerHTML='<option value="">Select requestor…</option>';
+    allUsers.filter(u=>u.role==='requestor'&&!u.disabled).forEach(u=>{const o=document.createElement('option');o.value=u.uid||u.id;o.textContent=`${u.name} — ${u.cityDisplay||u.city}`;rs.appendChild(o);});
+    const ps=$('AC-pro');ps.innerHTML='<option value="">Leave unassigned (open)</option>';
+    allUsers.filter(u=>u.role==='professional'&&!u.disabled&&u.available).forEach(u=>{const o=document.createElement('option');o.value=u.uid||u.id;o.textContent=`${u.name} — ${u.skill||''} — ${u.cityDisplay||u.city}`;ps.appendChild(o);});
+    loadSettings();
+  });
+}
+function aStats(){
+  const map={pending:'as-p',accepted:'as-a',inprogress:'as-i',resolved:'as-r',cancelled:'as-c'};
+  Object.entries(map).forEach(([st,id])=>{const el=$(id);if(el)el.textContent=adminReqs.filter(r=>r.status===st).length;});
+}
+function aRec(){$('a-rec').innerHTML=adminReqs.slice(0,5).map(r=>card(r,'admin')).join('')||empty('No requests yet');}
+function aReqRender(){
+  const srch=$('a-rs')?.value.toLowerCase()||'';
+  const flt=$('a-rf')?.value||'all';
+  let list=[...adminReqs];
+  if(flt!=='all')list=list.filter(r=>r.status===flt);
+  if(srch)list=list.filter(r=>r.title.toLowerCase().includes(srch)||r.requestorName?.toLowerCase().includes(srch)||r.professionalName?.toLowerCase().includes(srch));
+  $('a-reqlist').innerHTML=list.length?list.map(r=>card(r,'admin')).join(''):empty('No requests found');
+}
+window.aFR=aReqRender;
+window.aForceSt=async(id,st)=>{
+  await updateDoc(doc(db,'requests',id),{status:st,updatedAt:serverTimestamp()});
+  await sysMsg(id,`⚙️ Admin force-set to: ${stLbl(st)}`);toast(stLbl(st),'ok');
+};
+function aUsersRender(users){
+  const tb=$('a-utbl');if(!tb)return;
+  tb.innerHTML=users.map(u=>`<tr>
+    <td><div style="font-weight:600;font-size:.83rem">${esc(u.name)}</div><div style="font-size:.73rem;color:var(--mu)">${u.email}</div></td>
+    <td><span class="chip ${u.role==='admin'?'ch-a':u.role==='professional'?'ch-p':'ch-u'}">${u.role}</span></td>
+    <td style="font-size:.81rem">${u.cityDisplay||u.city||'—'}</td>
+    <td style="font-family:monospace;font-size:.76rem">${u.phone||'—'}</td>
+    <td style="font-size:.74rem;color:var(--mu)">${fmtD(u.createdAt)}</td>
+    <td><span class="chip ${u.disabled?'ch-off':'ch-on'}">${u.disabled?'Disabled':'Active'}</span></td>
+    <td><div class="ta">
+      ${u.role!=='admin'?`<button class="btn b-wn" onclick="promoteAdmin('${u.uid||u.id}')">↑ Admin</button>`:''}
+      <button class="btn ${u.disabled?'b-ok':'b-er'}" onclick="toggleDis('${u.uid||u.id}',${!u.disabled})">${u.disabled?'Enable':'Disable'}</button>
+    </div></td></tr>`).join('')||`<tr><td colspan="7" style="text-align:center;color:var(--mu);padding:26px">No users</td></tr>`;
+}
+window.aFU=t=>aUsersRender(allUsers.filter(u=>u.name.toLowerCase().includes(t.toLowerCase())||u.email.toLowerCase().includes(t.toLowerCase())));
+function aProfsRender(pros){
+  const tb=$('a-ptbl');if(!tb)return;
+  tb.innerHTML=pros.map(p=>`<tr>
+    <td><div style="font-weight:600;font-size:.83rem">${esc(p.name)}</div><div style="font-size:.73rem;color:var(--mu)">${p.email}</div></td>
+    <td style="font-size:.81rem">${p.skill||'—'}</td>
+    <td>${p.cityDisplay||p.city||'—'}</td>
+    <td style="font-family:monospace;font-size:.74rem;color:var(--ac2)">${p.upiId||'—'}</td>
+    <td><span class="pavl ${p.available?'on':'off'}" style="margin:0">${p.available?'Avail.':'Unavail.'}</span></td>
+    <td><div class="ta">
+      <button class="btn ${p.available?'b-er':'b-ok'}" onclick="togglePA('${p.uid||p.id}',${!p.available})">${p.available?'Unavail.':'Avail.'}</button>
+      <button class="btn ${p.disabled?'b-ok':'b-er'}" onclick="toggleDis('${p.uid||p.id}',${!p.disabled})">${p.disabled?'Enable':'Disable'}</button>
+    </div></td></tr>`).join('')||`<tr><td colspan="6" style="text-align:center;color:var(--mu);padding:26px">No professionals</td></tr>`;
+}
+window.aFP=t=>aProfsRender(allUsers.filter(u=>u.role==='professional'&&(u.name.toLowerCase().includes(t.toLowerCase())||(u.city||'').toLowerCase().includes(t.toLowerCase()))));
+window.toggleDis=async(uid,dis)=>{
+  await updateDoc(doc(db,'users',uid),{disabled:dis});
+  const u=allUsers.find(x=>(x.uid||x.id)===uid);if(u){u.disabled=dis;aUsersRender(allUsers);aProfsRender(allUsers.filter(u=>u.role==='professional'));}
+  toast(dis?'User disabled':'User enabled',dis?'er':'ok');
+};
+window.promoteAdmin=async uid=>{
+  if(!confirm('Promote this user to Admin? They will have full platform control.'))return;
+  await updateDoc(doc(db,'users',uid),{role:'admin'});
+  const u=allUsers.find(x=>(x.uid||x.id)===uid);if(u){u.role='admin';aUsersRender(allUsers);}
+  toast('User promoted to Admin','ok');
+};
+window.togglePA=async(uid,avail)=>{
+  await updateDoc(doc(db,'users',uid),{available:avail});
+  const p=allUsers.find(x=>(x.uid||x.id)===uid);if(p){p.available=avail;aProfsRender(allUsers.filter(u=>u.role==='professional'));}
+  toast(avail?'Pro set Available':'Pro set Unavailable','in');
+};
+
+/* ══ ADMIN MAP ══ */
+function initAMap(){
+  if(adMap){setTimeout(()=>{adMap.invalidateSize();aMapUpdate();},100);return;}
+  adMap=L.map('amap').setView([15.3519,76.1547],8);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OSM',maxZoom:19}).addTo(adMap);
+  aMapUpdate();
+}
+function aMapUpdate(){
+  if(!adMap)return;
+  adMkrs.forEach(m=>adMap.removeLayer(m));adMkrs=[];
+  let list=adminReqs.filter(r=>r.lat&&r.lng);
+  if(adMapFilt!=='all')list=list.filter(r=>r.status===adMapFilt);
+  list.forEach(r=>{
+    const m=L.marker([r.lat,r.lng],{icon:stIc(r.status)}).addTo(adMap);
+    m.bindPopup(`<b>${r.title}</b><br><small>${r.category}</small><br><span style="font-size:.8rem">${r.requestorName}</span><br>
+      <button onclick="openMapFull('${r.id}')" style="margin-top:5px;padding:3px 9px;border-radius:5px;border:1px solid #3b82f6;background:rgba(59,130,246,.1);color:#3b82f6;font-size:.71rem;cursor:pointer">Full Map</button>
+      <button onclick="openChat('${r.id}')" style="padding:3px 9px;border-radius:5px;border:1px solid #06b6d4;background:rgba(6,182,212,.1);color:#06b6d4;font-size:.71rem;cursor:pointer">Chat</button>`);
+    adMkrs.push(m);
+  });
+  if(adMkrs.length>0){try{adMap.fitBounds(L.featureGroup(adMkrs).getBounds().pad(.18));}catch(e){}}
+}
+window.aMapFlt=(f,el)=>{adMapFilt=f;document.querySelectorAll('#at-map .fch').forEach(c=>c.classList.remove('on'));if(el)el.classList.add('on');aMapUpdate();};
+
+/* ══ PROS GRID ══ */
+async function loadAllPros(){
+  const sn=await getDocs(query(collection(db,'users'),where('role','==','professional')));
+  allPros=sn.docs.map(d=>({id:d.id,...d.data()}));
+  renderPros(allPros);
+}
+function renderPros(list){
+  const el=$('r-prosgrid');if(!el)return;
+  el.innerHTML=list.length?list.map(p=>`<div class="pcard">
+    ${p.photoURL?`<img src="${p.photoURL}" style="width:42px;height:42px;border-radius:50%;object-fit:cover;border:2px solid var(--bd);margin-bottom:9px">`:`<div class="pav">${(p.name||'?').charAt(0)}</div>`}
+    <div class="pnm">${esc(p.name)}</div>
+    <div class="psk">${p.skill||'IT Professional'}</div>
+    <div class="plc">📍 ${p.cityDisplay||p.city} · ${p.experience||0} yrs</div>
+    <div class="plc">📞 ${p.phone||'—'}</div>
+    ${p.upiId?`<div class="plc" style="font-family:monospace;color:var(--ac2);font-size:.74rem">💳 ${p.upiId}</div>`:''}
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:5px">
+      <div class="pavl ${p.available?'on':'off'}">${p.available?'Available':'Unavailable'}</div>
+      ${p.avgRating?`<span style="font-size:.74rem;color:var(--wn)">⭐ ${p.avgRating} <span style="color:var(--mu)">(${p.totalRatings||0})</span></span>`:''}
+    </div>
+  </div>`).join(''):empty('No professionals found');
+}
+window.pF=t=>renderPros(allPros.filter(p=>p.name.toLowerCase().includes(t.toLowerCase())||(p.cityDisplay||p.city||'').toLowerCase().includes(t.toLowerCase())));
+
+/* ══ TAB SWITCHING ══ */
+window.rTab=(tab,el)=>{
+  document.querySelectorAll('#page-dash-requestor .ni').forEach(n=>n.classList.remove('on'));
+  if(el)el.classList.add('on');
+  else document.querySelectorAll('#page-dash-requestor .ni').forEach(n=>{if(n.getAttribute('onclick')?.includes(`'${tab}'`))n.classList.add('on');});
+  ['ov','my','pros','new'].forEach(t=>{const e=$('rt-'+t);if(e)e.style.display=t===tab?'block':'none';});
+  if(tab==='new')setTimeout(()=>{initLMap();if(lMap)lMap.invalidateSize();},200);
+};
+window.pTab=(tab,el)=>{
+  document.querySelectorAll('#page-dash-professional .ni').forEach(n=>n.classList.remove('on'));
+  if(el)el.classList.add('on');
+  ['ov','open','jobs','profile'].forEach(t=>{const e=$('pt-'+t);if(e)e.style.display=t===tab?'block':'none';});
+};
+window.aTab=(tab,el)=>{
+  document.querySelectorAll('#page-dash-admin .ni').forEach(n=>n.classList.remove('on'));
+  if(el)el.classList.add('on');
+  ['ov','reqs','create','users','profs','settings','map'].forEach(t=>{const e=$('at-'+t);if(e)e.style.display=t===tab?'block':'none';});
+  if(tab==='map')setTimeout(()=>initAMap(),100);
+  if(tab==='settings'){loadSettings();}
+};
+
+
+/* ══ PHASE 4: SEARCH ALL REQUESTS (requestor) ══ */
+window.globalSearch = q => {
+  if(!q){$('r-mylist').innerHTML='';rRender();return;}
+  const lq=q.toLowerCase();
+  const res=[...aReqs].filter(r=>r.title.toLowerCase().includes(lq)||r.category.toLowerCase().includes(lq)||r.desc.toLowerCase().includes(lq)||(r.location||'').toLowerCase().includes(lq));
+  $('r-mylist').innerHTML=res.length?res.map(r=>card(r,'requestor')).join(''):empty('No results for "'+q+'"');
+};
+
+/* ══ PHASE 4: NOTIFICATION SUPPORT ══ */
+window.reqNotifPerm=async()=>{
+  CM('M-notif');
+  if(!('Notification' in window)){toast('Notifications not supported in this browser','in');return;}
+  const perm=await Notification.requestPermission();
+  if(perm==='granted'){toast('🔔 Notifications enabled!','ok');}
+  else{toast('Notifications blocked — enable in browser settings','in');}
+};
+function checkNotifPrompt(){
+  if('Notification' in window && Notification.permission==='default'){
+    setTimeout(()=>$('M-notif').classList.add('on'),4000);
+  }
+}
+function showBrowserNotif(title,body){
+  if('Notification' in window && Notification.permission==='granted'){
+    new Notification('TechLink — '+title,{body,icon:'https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg'});
+  }
+}
+
+/* ══ PHASE 4: QUICK VIEW MODAL ══ */
+window.openQuickView=(rid,role)=>{
+  const r=[...aReqs,...openReqs,...myJobs,...adminReqs].find(x=>x.id===rid);
+  if(!r)return;
+  const ph=phoneBlock(r,role||CP.role);
+  $('M-view-body').innerHTML=`
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+      <div>
+        <h3 style="font-family:var(--fh);font-size:1.1rem;font-weight:800;margin-bottom:4px">${esc(r.title)}${r.createdByAdmin?'<span class="admin-tag">Admin</span>':''}</h3>
+        <div style="color:var(--mu);font-size:.78rem;display:flex;gap:10px;flex-wrap:wrap">
+          <span>📍 ${r.requestorCityDisplay||r.location}</span>
+          <span>🗂 ${r.category}</span>
+          <span>📅 ${fmtD(r.createdAt)}</span>
+          <span style="color:${pClr(r.priority)}">● ${r.priority}</span>
+        </div>
+      </div>
+      <span class="st ${stCls(r.status)}">${stLbl(r.status)}</span>
+    </div>
+    <div style="font-size:.84rem;color:var(--mu);line-height:1.6;margin-bottom:12px">${esc(r.desc)}</div>
+    ${r.address?`<div style="font-size:.76rem;color:var(--mu);margin-bottom:8px">📍 ${r.address}</div>`:''}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:.82rem;margin-bottom:14px">
+      <div style="padding:9px;background:var(--sf2);border-radius:8px"><div style="color:var(--mu);font-size:.73rem;margin-bottom:3px">Requestor</div><b>${esc(r.requestorName)}</b>${r.requestorOrg?'<div style="color:var(--mu);font-size:.74rem">'+esc(r.requestorOrg)+'</div>':''}</div>
+      <div style="padding:9px;background:var(--sf2);border-radius:8px"><div style="color:var(--mu);font-size:.73rem;margin-bottom:3px">IT Professional</div><b>${r.professionalName?esc(r.professionalName):'<span style="color:var(--mu)">Unassigned</span>'}</b></div>
+    </div>
+    ${ph?`<div style="margin-bottom:12px">${ph}</div>`:''}
+    ${resBlock(r)}
+    <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:14px;padding-top:13px;border-top:1px solid var(--bd)">
+      ${r.lat?`<button class="btn b-ac" onclick="CM('M-view');openMapFull('${r.id}')">🗺 Map</button>`:''}
+      ${['accepted','inprogress','resolved','cancelled'].includes(r.status)?`<button class="btn b-c2" onclick="CM('M-view');openChat('${r.id}')">💬 Chat</button>`:''}
+      ${CP.role==='admin'?`<button class="btn b-pu" onclick="CM('M-view');openAssign('${r.id}')">⟳ Reassign</button>`:''}
+      ${CP.role==='professional'&&r.status==='accepted'?`<button class="btn b-c2" onclick="CM('M-view');updSt('${r.id}','inprogress',null)">▶ Start</button>`:''}
+      ${CP.role==='professional'&&r.status==='inprogress'?`<button class="btn b-ok" onclick="CM('M-view');openActModal('${r.id}','res')">✓ Resolve</button>`:''}
+    </div>`;
+  $('M-view').classList.add('on');
+};
+
+/* ══ PHASE 4: RATING SYSTEM ══ */
+window.openRating=async rid=>{
+  const r=aReqs.find(x=>x.id===rid);
+  if(!r||r.status!=='resolved'||r.rating)return;
+  $('M-view-body').innerHTML=`
+    <h3>⭐ Rate this Service</h3>
+    <p class="msub">How was your experience with ${esc(r.professionalName||'the IT Professional')}?</p>
+    <div id="star-row" style="display:flex;gap:8px;justify-content:center;margin:20px 0">
+      ${[1,2,3,4,5].map(n=>`<button onclick="setRating(${n})" id="star-${n}" style="font-size:2rem;background:none;border:none;cursor:pointer;transition:.2s;filter:grayscale(1)" title="${n} star${n>1?'s':''}">⭐</button>`).join('')}
+    </div>
+    <div class="field"><label>Comments (optional)</label><textarea id="rating-comment" class="inp" rows="2" placeholder="Describe your experience…"></textarea></div>
+    <div id="rating-err" class="em"></div>
+    <button class="bfull" onclick="submitRating('${rid}')">Submit Rating</button>`;
+  $('M-view').classList.add('on');
+};
+let chosenRating=0;
+window.setRating=n=>{
+  chosenRating=n;
+  for(let i=1;i<=5;i++) $('star-'+i).style.filter=i<=n?'none':'grayscale(1)';
+};
+window.submitRating=async rid=>{
+  const err=$('rating-err');err.classList.remove('on');
+  if(!chosenRating){err.textContent='Please select a star rating.';err.classList.add('on');return;}
+  const comment=v('rating-comment');
+  try{
+    await updateDoc(doc(db,'requests',rid),{rating:chosenRating,ratingComment:comment,ratedAt:serverTimestamp()});
+    // Update professional's average rating
+    const r=aReqs.find(x=>x.id===rid);
+    if(r?.professionalId){
+      const allJobsSnap=await getDocs(query(collection(db,'requests'),where('professionalId','==',r.professionalId),where('status','==','resolved')));
+      const ratings=allJobsSnap.docs.map(d=>d.data().rating).filter(Boolean);
+      const avg=ratings.length?Math.round((ratings.reduce((a,b)=>a+b,0)/ratings.length)*10)/10:0;
+      await updateDoc(doc(db,'users',r.professionalId),{avgRating:avg,totalRatings:ratings.length});
+    }
+    toast('⭐ Rating submitted! Thank you.','ok');CM('M-view');chosenRating=0;
+  }catch(e){err.textContent=e.message;err.classList.add('on');}
+};
+
+/* ══ PHASE 4: REAL-TIME UNREAD BADGE ON CHAT ══ */
+let unreadCounts={};
+async function loadUnreadCounts(reqIds){
+  // Simple unread tracking — count messages after lastReadAt
+  // In production you'd store per-user read positions
+}
+
+/* ══ PHASE 4: REQUEST ACTIVITY FEED ══ */
+function activityFeed(r){
+  if(!r.lastMsgAt) return '';
+  return`<div style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;background:rgba(6,182,212,.08);border:1px solid rgba(6,182,212,.17);font-size:.7rem;color:var(--ac2)">💬 ${r.lastMsgBy?esc(r.lastMsgBy)+' messaged':'New message'} · ${fmtD(r.lastMsgAt)}</div>`;
+}
+
+/* ══ PHASE 4: EXPORT REPORT (admin) ══ */
+window.exportReport=()=>{
+  const rows=[['ID','Title','Category','Priority','Status','Requestor','Org','City','Professional','Payment','Amount','Date']];
+  adminReqs.forEach(r=>{
+    rows.push([
+      r.id,r.title,r.category,r.priority,stLbl(r.status),
+      r.requestorName,r.requestorOrg||'',r.requestorCityDisplay||r.requestorCity,
+      r.professionalName||'',
+      r.payment?payLbl(r.payment.method):'',
+      r.payment?.amount||'',
+      fmtD(r.createdAt)
+    ]);
+  });
+  const csv=rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download='techlink-requests-'+new Date().toISOString().slice(0,10)+'.csv';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+  toast('Report downloaded!','ok');
+};
+
+/* ══ PHASE 4: ADMIN SEND BROADCAST MESSAGE ══ */
+window.sendBroadcast=async()=>{
+  const msg=v('broadcast-msg');
+  if(!msg){toast('Enter a message to broadcast','er');return;}
+  // Write to a broadcasts collection that all users' dashboards can read
+  try{
+    await addDoc(collection(db,'broadcasts'),{
+      message:msg,sentBy:CP.name,sentAt:serverTimestamp(),
+      targetRole:v('broadcast-role')||'all'
+    });
+    toast('Broadcast sent!','ok');
+    $('broadcast-msg').value='';
+  }catch(e){toast(e.message,'er');}
+};
+
+/* ══ PHASE 4: AUTO REFRESH PROS WHEN SETTINGS CHANGE ══ */
+const origSaveSetting=window.saveSetting;
+window.saveSetting=async(key,btn)=>{
+  await origSaveSetting(key,btn);
+  // Force re-render cards to reflect new phone visibility setting
+  if(key==='showReqPhone'||key==='showProPhone'){
+    revealedPh={};// reset reveals on setting change
+    if(CP.role==='requestor')rRender();
+    if(CP.role==='professional'){$('p-joblist').innerHTML=myJobs.map(r=>jobCard(r)).join('');}
+  }
+};
+
+/* ══ PHASE 4: NOTIFICATION CHECK ON LOAD ══ */
+function phase4Init(){
+  updateFAB();
+  checkNotifPrompt();
+  // Listen for broadcasts
+  if(CP){
+    onSnapshot(query(collection(db,'broadcasts'),orderBy('sentAt','desc')),sn=>{
+      const latest=sn.docs[0]?.data();
+      if(latest&&(latest.targetRole==='all'||latest.targetRole===CP.role)){
+        const key='bc_'+sn.docs[0].id;
+        if(!sessionStorage.getItem(key)){
+          sessionStorage.setItem(key,'1');
+          // Show broadcast toast after small delay
+          setTimeout(()=>toast('📢 '+latest.message,'in'),500);
+        }
+      }
+    });
+  }
+}
+
+
+/* ══════════════════════════════════════════════════════
+   PHASE 5 — MOBILE NAVIGATION SYSTEM
+══════════════════════════════════════════════════════ */
+
+/* ── Drawer toggle ── */
+window.toggleDrawer=()=>{
+  $('mob-drawer').classList.toggle('open');
+  $('mob-overlay').classList.toggle('open');
+};
+window.closeDrawer=()=>{
+  $('mob-drawer').classList.remove('open');
+  $('mob-overlay').classList.remove('open');
+};
+
+/* ── Nav item config per role ── */
+const NAV_CONFIG={
+  requestor:{
+    tabs:[
+      {id:'ov',  label:'Home',    tab:'rTab', svg:'<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>'},
+      {id:'my',  label:'Requests',tab:'rTab', svg:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>', cntId:'r-cnt'},
+      {id:'pros',label:'Pros',    tab:'rTab', svg:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>'},
+      {id:'new', label:'+ New',   tab:'rTab', svg:'<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>'},
+    ],
+    drawer:[
+      {id:'ov',  label:'Overview',     tab:'rTab', svg:'<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>'},
+      {id:'my',  label:'My Requests',  tab:'rTab', svg:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>', cntId:'r-cnt'},
+      {id:'pros',label:'IT Professionals', tab:'rTab', svg:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>'},
+      {id:'new', label:'New Request',  tab:'rTab', svg:'<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>'},
+    ]
+  },
+  professional:{
+    tabs:[
+      {id:'ov',     label:'Home',    tab:'pTab', svg:'<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>'},
+      {id:'open',   label:'Open',    tab:'pTab', svg:'<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>', cntId:'p-cnt'},
+      {id:'jobs',   label:'My Jobs', tab:'pTab', svg:'<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>'},
+      {id:'profile',label:'Profile', tab:'pTab', svg:'<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>'},
+    ],
+    drawer:[
+      {id:'ov',     label:'Overview',       tab:'pTab', svg:'<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>'},
+      {id:'open',   label:'Open Requests',  tab:'pTab', svg:'<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>', cntId:'p-cnt'},
+      {id:'jobs',   label:'My Jobs',        tab:'pTab', svg:'<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>'},
+      {id:'profile',label:'My Profile',     tab:'pTab', svg:'<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>'},
+    ]
+  },
+  admin:{
+    tabs:[
+      {id:'ov',      label:'Home',    tab:'aTab', svg:'<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>'},
+      {id:'reqs',    label:'Requests',tab:'aTab', svg:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>', cntId:'a-cnt'},
+      {id:'users',   label:'Users',   tab:'aTab', svg:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>'},
+      {id:'more',    label:'More',    tab:'_drawer'},
+    ],
+    drawer:[
+      {id:'ov',      label:'Overview',       tab:'aTab', svg:'<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>'},
+      {id:'reqs',    label:'All Requests',   tab:'aTab', svg:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>', cntId:'a-cnt'},
+      {id:'create',  label:'Create Request', tab:'aTab', svg:'<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>'},
+      {id:'users',   label:'Users',          tab:'aTab', svg:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>'},
+      {id:'profs',   label:'IT Professionals',tab:'aTab',svg:'<path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>'},
+      {id:'settings',label:'Settings',       tab:'aTab', svg:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>'},
+      {id:'map',     label:'Requests Map',   tab:'aTab', svg:'<polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>'},
+    ]
+  }
+};
+
+function buildMobNav(role){
+  const cfg = NAV_CONFIG[role];
+  if (!cfg) return;
+
+  // ── Bottom tab bar ──
+  const tb = $('mob-tabbar');
+  tb.style.gridTemplateColumns = `repeat(${cfg.tabs.length},1fr)`;
+
+  tb.innerHTML = cfg.tabs.map(t => `
+    <button class="mob-tab ${t.id === 'ov' ? 'on' : ''}" id="mtb-${t.id}"
+      onclick="${
+        t.tab === '_drawer'
+          ? 'toggleDrawer()'
+          : `${t.tab}('${t.id}', null); updateMobTab('${t.id}', '${role}')`
+      }">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${t.svg}</svg>
+      ${t.cntId ? `<span class="mob-cnt" id="mob-cnt-${t.id}" style="display:none">0</span>` : ''}
+      ${t.label}
+    </button>
+  `).join('');
+
+  // ── Drawer content ──
+  const dc = $('mob-drawer-content');
+  const roleLabel = {requestor:'Requestor', professional:'IT Pro', admin:'Admin'}[role] || role;
+
+  dc.innerHTML = `
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--bd)">
+      <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--ac),var(--ac2));display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-weight:800;color:#fff">
+        ${(CP?.name || '?').charAt(0)}
+      </div>
+      <div>
+        <div style="font-weight:600;font-size:.9rem">${CP?.name || ''}</div>
+        <div style="font-size:.74rem;color:var(--mu)">${roleLabel}</div>
+      </div>
+    </div>
+
+    <div class="dsl">Navigation</div>
+
+    ${cfg.drawer.map(t => `
+      <button class="ni ${t.id === 'ov' ? 'on' : ''}" id="mni-${t.id}"
+        onclick="${t.tab}('${t.id}', null); updateMobTab('${t.id}', '${role}'); closeDrawer()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${t.svg}</svg>
+        ${t.label}
+        ${t.cntId ? `<span class="cnt cnt-er" id="mni-cnt-${t.id}" style="display:none">0</span>` : ''}
+      </button>
+    `).join('')}
+
+    <div class="dvd"></div>
+
+    <button class="ni" onclick="logout()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+        <polyline points="16 17 21 12 16 7"/>
+        <line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+      Sign Out
+    </button>
+  `;
+}
+
+function updateMobTab(tabId,role){
+  const cfg=NAV_CONFIG[role];
+  if(!cfg)return;
+  // Update bottom tab active states
+  cfg.tabs.forEach(t=>{
+    const el=$('mtb-'+t.id);
+    if(el)el.classList.toggle('on',t.id===tabId);
+  });
+  // Update drawer nav item active states
+  cfg.drawer.forEach(t=>{
+    const el=$('mni-'+t.id);
+    if(el)el.classList.toggle('on',t.id===tabId);
+  });
+}
+
+function syncMobCounts(){
+  // Sync badge counts to mobile nav
+  const pairs=[['r-cnt','mob-cnt-my'],['p-cnt','mob-cnt-open'],['a-cnt','mob-cnt-reqs']];
+  pairs.forEach(([src,dst])=>{
+    const s=$(src),d=$(dst);
+    if(s&&d){const v=s.textContent;d.textContent=v;d.style.display=s.style.display;}
+  });
+  // Mirror to drawer
+  [['r-cnt','mni-cnt-my'],['p-cnt','mni-cnt-open'],['a-cnt','mni-cnt-reqs']].forEach(([src,dst])=>{
+    const s=$(src),d=$(dst);
+    if(s&&d){const v=s.textContent;d.textContent=v;d.style.display=s.style.display;}
+  });
+}
+
+// Observe badge changes and sync to mobile nav
+function watchBadges(){
+  const targets=['r-cnt','p-cnt','a-cnt'];
+  const obs=new MutationObserver(syncMobCounts);
+  targets.forEach(id=>{const el=$(id);if(el)obs.observe(el,{childList:true,characterData:true,subtree:true,attributes:true});});
+}
+
+// Patch existing tab functions to also update mobile nav
+const _rTab=window.rTab;
+window.rTab=(tab,el)=>{_rTab(tab,el);updateMobTab(tab,'requestor');};
+const _pTab=window.pTab;
+window.pTab=(tab,el)=>{_pTab(tab,el);updateMobTab(tab,'professional');};
+const _aTab=window.aTab;
+window.aTab=(tab,el)=>{_aTab(tab,el);updateMobTab(tab,'admin');};
+
+// Close drawer on back/escape
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrawer();});
+window.addEventListener('popstate',closeDrawer);
+
+// Close drawer when switching pages via SP
+const _SP=window.SP;
+window.SP=p=>{_SP(p);closeDrawer();};
+
+/* ── Phase 5: Pull-to-scroll hint & mobile UX ── */
+// Prevent body scroll when drawer open
+const origToggle=window.toggleDrawer;
+window.toggleDrawer=()=>{
+  origToggle();
+  document.body.style.overflow=$('mob-drawer').classList.contains('open')?'hidden':'';
+};
+const origCloseDrawer=window.closeDrawer;
+window.closeDrawer=()=>{
+  origCloseDrawer();
+  document.body.style.overflow='';
+};
+
+/* ══ INIT ══ */
+setTimeout(()=>{$('LS').classList.add('hide');setTimeout(()=>$('LS').style.display='none',500);},2500);
+
+/* FAB visibility */
+window.mobFAB=()=>{
+  if(CP?.role==='requestor'){rTab('new',null);updateMobTab('new','requestor');}
+  else if(CP?.role==='professional'){pTab('open',null);updateMobTab('open','professional');}
+};
+// Show FAB only for requestor/professional
+function updateFAB(){
+  const fab=$('fab');if(!fab)return;
+  const show=CP&&(CP.role==='requestor'||CP.role==='professional')&&window.innerWidth<=780;
+  fab.style.display=show?'flex':'none';
+}
+window.addEventListener('resize',updateFAB);
+// Phase 4 init runs after auth state is settled
+setTimeout(()=>{ if(CP) phase4Init(); },3500);
+</script>
+
+<!-- FAB: Mobile floating action button for quick new request (requestor) -->
+<button id="fab" onclick="mobFAB()" title="New Request" style="display:none">＋</button>
+</body>
+</html>
