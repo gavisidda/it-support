@@ -76,92 +76,19 @@ select.inp option{background:var(--sf2)}
 .al{text-align:center;margin-top:14px;font-size:.82rem;color:var(--mu)}
 .em{color:var(--er);font-size:.79rem;margin-top:6px;display:none}
 .em.on{display:block}
-/* ═══ DASH LAYOUT ═══ */
+/* DASH LAYOUT */
 .dl{display:grid;grid-template-columns:222px 1fr;min-height:calc(100vh - 60px)}
 @media(max-width:780px){.dl{grid-template-columns:1fr}}
-
-/* Desktop sidebar */
-.ds{background:var(--sf);border-right:1px solid var(--bd);padding:18px 13px;position:sticky;top:60px;height:calc(100vh - 60px);overflow-y:auto;z-index:10}
+.ds{background:var(--sf);border-right:1px solid var(--bd);padding:18px 13px;position:sticky;top:60px;height:calc(100vh - 60px);overflow-y:auto}
 @media(max-width:780px){.ds{display:none}}
-
-/* ── MOBILE DRAWER ── */
-#mob-drawer{position:fixed;top:0;left:0;bottom:0;width:280px;background:var(--sf);z-index:800;transform:translateX(-100%);transition:transform .3s cubic-bezier(.4,0,.2,1);padding:72px 14px 100px;overflow-y:auto;box-shadow:4px 0 24px rgba(0,0,0,.5)}
-#mob-drawer.open{transform:translateX(0)}
-#mob-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:799;display:none;backdrop-filter:blur(2px)}
-#mob-overlay.open{display:block}
-.mob-drawer-close{position:absolute;top:16px;right:16px;background:none;border:none;color:var(--mu);font-size:1.4rem;cursor:pointer;padding:6px;border-radius:8px}
-.mob-drawer-close:hover{background:var(--sf2);color:var(--tx)}
-/* ── MOB HAMBURGER IN NAV ── */
-#mob-menu-btn{display:none;background:none;border:none;color:var(--tx);font-size:1.3rem;padding:6px 8px;border-radius:8px;cursor:pointer}
-#mob-menu-btn:hover{background:var(--sf2)}
-@media(max-width:780px){#mob-menu-btn{display:flex;align-items:center;}}
-
-/* ── BOTTOM TAB BAR (mobile) ── */
-#mob-tabbar{display:none;position:fixed;bottom:0;left:0;right:0;z-index:500;background:rgba(17,24,39,.97);backdrop-filter:blur(16px);border-top:1px solid var(--bd);padding:0;height:60px;grid-auto-columns:1fr;align-items:stretch}
-@media(max-width:780px){#mob-tabbar{display:grid}}
-.mob-tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:none;background:none;color:var(--mu);font-size:.6rem;font-weight:600;cursor:pointer;padding:8px 4px;transition:.2s;position:relative;letter-spacing:.02em}
-.mob-tab.on{color:var(--ac)}
-.mob-tab svg{width:20px;height:20px;flex-shrink:0}
-.mob-tab .mob-cnt{position:absolute;top:5px;right:calc(50% - 14px);background:var(--er);color:#fff;border-radius:20px;font-size:.58rem;padding:1px 5px;font-weight:700;min-width:16px;text-align:center}
-@media(max-width:780px){.dm{padding:16px 14px 76px}}/* extra bottom padding for tab bar */
-
-/* Sidebar nav items (same in drawer) */
 .dsl{font-size:.67rem;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.1em;padding:0 9px;margin:12px 0 5px}
-.ni{display:flex;align-items:center;gap:9px;padding:10px 11px;border-radius:9px;color:var(--mu);font-size:.85rem;font-weight:500;cursor:pointer;transition:.2s;margin-bottom:3px;border:none;background:none;width:100%;text-align:left}
+.ni{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:8px;color:var(--mu);font-size:.84rem;font-weight:500;cursor:pointer;transition:.2s;margin-bottom:2px;border:none;background:none;width:100%;text-align:left}
 .ni:hover,.ni.on{background:rgba(59,130,246,.09);color:var(--ac)}
-.ni svg{flex-shrink:0;width:16px;height:16px}
+.ni svg{flex-shrink:0;width:15px;height:15px}
 .ni .cnt{margin-left:auto;color:#fff;border-radius:20px;font-size:.66rem;padding:1px 6px;font-weight:700}
 .cnt-ac{background:var(--ac)}.cnt-er{background:var(--er)}
 .dm{padding:28px 24px;overflow-y:auto}
-
-/* ── MOBILE RESPONSIVE FIXES ── */
-@media(max-width:780px){
-  /* Stats grid 2 cols on mobile */
-  .sg{grid-template-columns:repeat(2,1fr);gap:9px}
-  .sn{font-size:1.55rem}
-  /* Filter bar scrollable */
-  .fb{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
-  .fb::-webkit-scrollbar{display:none}
-  .fch{flex-shrink:0}
-  /* Cards full width */
-  .rc{padding:14px}
-  .rct{gap:7px}
-  .rtl{font-size:.86rem}
-  /* Auth card padding */
-  .ac{padding:26px 20px}
-  /* Pros grid 1 col */
-  .pgrid{grid-template-columns:1fr}
-  /* Map smaller */
-  #lmap{height:220px}
-  /* Admin table horizontal scroll */
-  .tw{border-radius:8px}
-  /* Modal full screen */
-  .mb{max-height:96vh;border-radius:12px;padding:22px 18px}
-  .mb-chat{height:95vh;max-height:95vh;border-radius:12px 12px 0 0;position:fixed;bottom:0;left:0;right:0;max-width:100%}
-  .mo{padding:0;align-items:flex-end}
-  .mo.on .mb-chat{animation:slideup .28s ease}
-  @keyframes slideup{from{transform:translateY(100%)}to{transform:translateY(0)}}
-  /* Hero smaller */
-  .hero{padding:52px 16px 36px}
-  /* Landing nav */
-  .hbtns{gap:8px}
-  .btn-pri,.btn-out{padding:10px 18px;font-size:.86rem}
-  /* Rrow label narrower */
-  .rrow label{min-width:86px}
-  /* Pay grid 4 cols */
-  .pay-grid{grid-template-columns:repeat(4,1fr)}
-  .pay-ic{font-size:1.1rem}
-  /* Dashboard header */
-  .dh h2{font-size:1.2rem}
-  /* Section padding */
-  .ctr,.csm{padding:26px 16px}
-  .ctr{padding-top:18px}
-}
-@media(max-width:400px){
-  .sg{grid-template-columns:repeat(2,1fr)}
-  .pay-grid{grid-template-columns:repeat(3,1fr)}
-  .fb{gap:6px}
-}
+@media(max-width:780px){.dm{padding:16px 14px}}
 .dh{margin-bottom:23px}
 .dh h2{font-family:var(--fh);font-size:1.4rem;font-weight:800}
 .dh p{color:var(--mu);font-size:.84rem;margin-top:3px}
@@ -342,50 +269,6 @@ select.inp option{background:var(--sf2)}
 .admin-tag{font-size:.66rem;background:rgba(245,158,11,.12);color:var(--wn);border:1px solid rgba(245,158,11,.23);border-radius:6px;padding:1px 7px;font-weight:600;margin-left:6px;vertical-align:middle}
 .info-box{background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.16);border-radius:9px;padding:11px 13px;font-size:.81rem;color:var(--ac);margin-bottom:15px}
 .warn-box{background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.2);border-radius:9px;padding:11px 13px;font-size:.81rem;color:var(--wn);margin-bottom:15px}
-
-/* ═══ PHASE 5 EXTRA CSS ═══ */
-/* Touch-friendly tap targets */
-@media(max-width:780px){
-  .btn{padding:8px 14px;font-size:.8rem}
-  .ra{gap:7px}
-  .ra .btn{min-height:36px}
-  /* Floating action button */
-  #fab{display:flex;position:fixed;bottom:72px;right:16px;z-index:490;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--ac),#2563eb);border:none;color:#fff;font-size:1.4rem;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(59,130,246,.5);cursor:pointer;transition:.2s}
-  #fab:hover{transform:scale(1.08);box-shadow:0 6px 22px rgba(59,130,246,.6)}
-  /* Swipe feel on cards */
-  .rc{-webkit-tap-highlight-color:transparent}
-  /* Landscape fix */
-  @media(orientation:landscape) and (max-height:500px){
-    #mob-tabbar{height:50px}
-    .mob-tab{font-size:.55rem;gap:1px}
-    .mob-tab svg{width:17px;height:17px}
-    .dm{padding-bottom:62px}
-  }
-}
-@media(min-width:781px){
-  #fab{display:none}
-  #mob-tabbar{display:none!important}
-}
-/* Better scrollbars on desktop */
-.ds::-webkit-scrollbar,.dm::-webkit-scrollbar{width:4px}
-.ds::-webkit-scrollbar-track,.dm::-webkit-scrollbar-track{background:transparent}
-.ds::-webkit-scrollbar-thumb,.dm::-webkit-scrollbar-thumb{background:var(--bd);border-radius:4px}
-/* Smooth page transitions */
-.page.on{animation:fi .25s ease}
-/* Filter bar sticky on mobile */
-@media(max-width:780px){
-  .fb-sticky{position:sticky;top:0;z-index:50;background:var(--bg);padding:10px 0;margin:-4px 0 12px}
-}
-/* Chat full-screen on mobile */
-@media(max-width:780px){
-  #M-chat.on{padding:0;align-items:flex-end}
-  #M-chat .mb-chat{width:100%;max-width:100%;border-radius:16px 16px 0 0;max-height:92vh}
-}
-/* Better form spacing on mobile */
-@media(max-width:780px){
-  .field{margin-bottom:12px}
-  .inp{font-size:16px}/* prevent iOS zoom on focus */
-}
 </style>
 </head>
 <body>
@@ -394,9 +277,6 @@ select.inp option{background:var(--sf2)}
 <nav id="NAV" style="display:none">
   <div class="nb">⚡ TechLink</div>
   <div class="nr">
-    <button id="mob-menu-btn" onclick="toggleDrawer()" aria-label="Menu">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-    </button>
     <span id="nav-name" style="font-size:.82rem;color:var(--mu)"></span>
     <span id="nav-bdg" class="bdg"></span>
     <button id="nav-setup-btn" class="bsm" onclick="CM_open('M-setup')" style="display:none" title="Setup Guide">⚙️ Setup</button>
@@ -570,7 +450,7 @@ select.inp option{background:var(--sf2)}
       </div>
       <div id="rt-my" style="display:none">
         <div class="dh"><h2>My Service Requests</h2></div>
-        <div class="fb fb-sticky">
+        <div class="fb">
           <input class="sbox" placeholder="Search…" oninput="rTF(this.value)" style="flex:1;max-width:200px"/>
           <button class="fch on" onclick="rSF('all',this)">All</button>
           <button class="fch" onclick="rSF('pending',this)">Pending</button>
@@ -1070,6 +950,7 @@ import{getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut
 import{getFirestore,collection,doc,setDoc,getDoc,getDocs,addDoc,updateDoc,query,where,onSnapshot,orderBy,serverTimestamp,writeBatch}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 /* ══ FIREBASE CONFIG — Replace with yours ══ */
+/*const FC={apiKey:"YOUR_API_KEY",authDomain:"YOUR_PROJECT.firebaseapp.com",projectId:"YOUR_PROJECT_ID",storageBucket:"YOUR_PROJECT.appspot.com",messagingSenderId:"YOUR_SENDER_ID",appId:"YOUR_APP_ID"};*/
 const FC={apiKey:"AIzaSyD-vvHGNOdKPJVBuKH_87-BaZtt-6uzqZE",authDomain:"it-service-platform.firebaseapp.com",projectId:"it-service-platform",storageBucket:"it-service-platform.firebasestorage.app",messagingSenderId:"37326787755",appId:"1:37326787755:web:cb1cf51e3e339d9b8593ee"};
 const fb=initializeApp(FC);
 const auth=getAuth(fb);
@@ -1654,8 +1535,6 @@ function jobCard(r){
 /* ══ REQUESTOR DASH ══ */
 function loadReqDash(){
   $('r-wel').textContent=`Welcome back, ${(CP.name||'').split(' ')[0]} 👋`;
-  buildMobNav('requestor');
-  watchBadges();
   if(uR)uR();
   uR=onSnapshot(query(collection(db,'requests'),where('requestorId','==',CU.uid),orderBy('createdAt','desc')),sn=>{
     aReqs=sn.docs.map(d=>({id:d.id,...d.data()}));
@@ -1681,8 +1560,6 @@ window.rSF=(st,el)=>{rStFilt=st;document.querySelectorAll('#rt-my .fch').forEach
 /* ══ PROFESSIONAL DASH ══ */
 function loadProDash(){
   $('p-wel').textContent=`Welcome, ${(CP.name||'').split(' ')[0]} 👋`;
-  buildMobNav('professional');
-  watchBadges();
   renderPProf();
   if(uO)uO();
   uO=onSnapshot(query(collection(db,'requests'),where('status','==','pending'),orderBy('createdAt','desc')),sn=>{
@@ -1737,8 +1614,6 @@ window.toggleAvail=async()=>{
 
 /* ══ ADMIN DASH ══ */
 function loadAdminDash(){
-  buildMobNav('admin');
-  watchBadges();
   if(uR)uR();
   uR=onSnapshot(query(collection(db,'requests'),orderBy('createdAt','desc')),sn=>{
     adminReqs=sn.docs.map(d=>({id:d.id,...d.data()}));
@@ -2054,7 +1929,6 @@ window.saveSetting=async(key,btn)=>{
 
 /* ══ PHASE 4: NOTIFICATION CHECK ON LOAD ══ */
 function phase4Init(){
-  updateFAB();
   checkNotifPrompt();
   // Listen for broadcasts
   if(CP){
@@ -2072,215 +1946,10 @@ function phase4Init(){
   }
 }
 
-
-/* ══════════════════════════════════════════════════════
-   PHASE 5 — MOBILE NAVIGATION SYSTEM
-══════════════════════════════════════════════════════ */
-
-/* ── Drawer toggle ── */
-window.toggleDrawer=()=>{
-  $('mob-drawer').classList.toggle('open');
-  $('mob-overlay').classList.toggle('open');
-};
-window.closeDrawer=()=>{
-  $('mob-drawer').classList.remove('open');
-  $('mob-overlay').classList.remove('open');
-};
-
-/* ── Nav item config per role ── */
-const NAV_CONFIG={
-  requestor:{
-    tabs:[
-      {id:'ov',  label:'Home',    tab:'rTab', svg:'<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>'},
-      {id:'my',  label:'Requests',tab:'rTab', svg:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>', cntId:'r-cnt'},
-      {id:'pros',label:'Pros',    tab:'rTab', svg:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>'},
-      {id:'new', label:'+ New',   tab:'rTab', svg:'<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>'},
-    ],
-    drawer:[
-      {id:'ov',  label:'Overview',     tab:'rTab', svg:'<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>'},
-      {id:'my',  label:'My Requests',  tab:'rTab', svg:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>', cntId:'r-cnt'},
-      {id:'pros',label:'IT Professionals', tab:'rTab', svg:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>'},
-      {id:'new', label:'New Request',  tab:'rTab', svg:'<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>'},
-    ]
-  },
-  professional:{
-    tabs:[
-      {id:'ov',     label:'Home',    tab:'pTab', svg:'<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>'},
-      {id:'open',   label:'Open',    tab:'pTab', svg:'<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>', cntId:'p-cnt'},
-      {id:'jobs',   label:'My Jobs', tab:'pTab', svg:'<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>'},
-      {id:'profile',label:'Profile', tab:'pTab', svg:'<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>'},
-    ],
-    drawer:[
-      {id:'ov',     label:'Overview',       tab:'pTab', svg:'<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>'},
-      {id:'open',   label:'Open Requests',  tab:'pTab', svg:'<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>', cntId:'p-cnt'},
-      {id:'jobs',   label:'My Jobs',        tab:'pTab', svg:'<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>'},
-      {id:'profile',label:'My Profile',     tab:'pTab', svg:'<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>'},
-    ]
-  },
-  admin:{
-    tabs:[
-      {id:'ov',      label:'Home',    tab:'aTab', svg:'<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>'},
-      {id:'reqs',    label:'Requests',tab:'aTab', svg:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>', cntId:'a-cnt'},
-      {id:'users',   label:'Users',   tab:'aTab', svg:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>'},
-      {id:'more',    label:'More',    tab:'_drawer'},
-    ],
-    drawer:[
-      {id:'ov',      label:'Overview',       tab:'aTab', svg:'<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>'},
-      {id:'reqs',    label:'All Requests',   tab:'aTab', svg:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>', cntId:'a-cnt'},
-      {id:'create',  label:'Create Request', tab:'aTab', svg:'<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>'},
-      {id:'users',   label:'Users',          tab:'aTab', svg:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>'},
-      {id:'profs',   label:'IT Professionals',tab:'aTab',svg:'<path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>'},
-      {id:'settings',label:'Settings',       tab:'aTab', svg:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>'},
-      {id:'map',     label:'Requests Map',   tab:'aTab', svg:'<polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>'},
-    ]
-  }
-};
-
-function buildMobNav(role){
-  const cfg = NAV_CONFIG[role];
-  if (!cfg) return;
-
-  // ── Bottom tab bar ──
-  const tb = $('mob-tabbar');
-  tb.style.gridTemplateColumns = `repeat(${cfg.tabs.length},1fr)`;
-
-  tb.innerHTML = cfg.tabs.map(t => `
-    <button class="mob-tab ${t.id === 'ov' ? 'on' : ''}" id="mtb-${t.id}"
-      onclick="${
-        t.tab === '_drawer'
-          ? 'toggleDrawer()'
-          : `${t.tab}('${t.id}', null); updateMobTab('${t.id}', '${role}')`
-      }">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${t.svg}</svg>
-      ${t.cntId ? `<span class="mob-cnt" id="mob-cnt-${t.id}" style="display:none">0</span>` : ''}
-      ${t.label}
-    </button>
-  `).join('');
-
-  // ── Drawer content ──
-  const dc = $('mob-drawer-content');
-  const roleLabel = {requestor:'Requestor', professional:'IT Pro', admin:'Admin'}[role] || role;
-
-  dc.innerHTML = `
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--bd)">
-      <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--ac),var(--ac2));display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-weight:800;color:#fff">
-        ${(CP?.name || '?').charAt(0)}
-      </div>
-      <div>
-        <div style="font-weight:600;font-size:.9rem">${CP?.name || ''}</div>
-        <div style="font-size:.74rem;color:var(--mu)">${roleLabel}</div>
-      </div>
-    </div>
-
-    <div class="dsl">Navigation</div>
-
-    ${cfg.drawer.map(t => `
-      <button class="ni ${t.id === 'ov' ? 'on' : ''}" id="mni-${t.id}"
-        onclick="${t.tab}('${t.id}', null); updateMobTab('${t.id}', '${role}'); closeDrawer()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${t.svg}</svg>
-        ${t.label}
-        ${t.cntId ? `<span class="cnt cnt-er" id="mni-cnt-${t.id}" style="display:none">0</span>` : ''}
-      </button>
-    `).join('')}
-
-    <div class="dvd"></div>
-
-    <button class="ni" onclick="logout()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-        <polyline points="16 17 21 12 16 7"/>
-        <line x1="21" y1="12" x2="9" y2="12"/>
-      </svg>
-      Sign Out
-    </button>
-  `;
-}
-
-function updateMobTab(tabId,role){
-  const cfg=NAV_CONFIG[role];
-  if(!cfg)return;
-  // Update bottom tab active states
-  cfg.tabs.forEach(t=>{
-    const el=$('mtb-'+t.id);
-    if(el)el.classList.toggle('on',t.id===tabId);
-  });
-  // Update drawer nav item active states
-  cfg.drawer.forEach(t=>{
-    const el=$('mni-'+t.id);
-    if(el)el.classList.toggle('on',t.id===tabId);
-  });
-}
-
-function syncMobCounts(){
-  // Sync badge counts to mobile nav
-  const pairs=[['r-cnt','mob-cnt-my'],['p-cnt','mob-cnt-open'],['a-cnt','mob-cnt-reqs']];
-  pairs.forEach(([src,dst])=>{
-    const s=$(src),d=$(dst);
-    if(s&&d){const v=s.textContent;d.textContent=v;d.style.display=s.style.display;}
-  });
-  // Mirror to drawer
-  [['r-cnt','mni-cnt-my'],['p-cnt','mni-cnt-open'],['a-cnt','mni-cnt-reqs']].forEach(([src,dst])=>{
-    const s=$(src),d=$(dst);
-    if(s&&d){const v=s.textContent;d.textContent=v;d.style.display=s.style.display;}
-  });
-}
-
-// Observe badge changes and sync to mobile nav
-function watchBadges(){
-  const targets=['r-cnt','p-cnt','a-cnt'];
-  const obs=new MutationObserver(syncMobCounts);
-  targets.forEach(id=>{const el=$(id);if(el)obs.observe(el,{childList:true,characterData:true,subtree:true,attributes:true});});
-}
-
-// Patch existing tab functions to also update mobile nav
-const _rTab=window.rTab;
-window.rTab=(tab,el)=>{_rTab(tab,el);updateMobTab(tab,'requestor');};
-const _pTab=window.pTab;
-window.pTab=(tab,el)=>{_pTab(tab,el);updateMobTab(tab,'professional');};
-const _aTab=window.aTab;
-window.aTab=(tab,el)=>{_aTab(tab,el);updateMobTab(tab,'admin');};
-
-// Close drawer on back/escape
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrawer();});
-window.addEventListener('popstate',closeDrawer);
-
-// Close drawer when switching pages via SP
-const _SP=window.SP;
-window.SP=p=>{_SP(p);closeDrawer();};
-
-/* ── Phase 5: Pull-to-scroll hint & mobile UX ── */
-// Prevent body scroll when drawer open
-const origToggle=window.toggleDrawer;
-window.toggleDrawer=()=>{
-  origToggle();
-  document.body.style.overflow=$('mob-drawer').classList.contains('open')?'hidden':'';
-};
-const origCloseDrawer=window.closeDrawer;
-window.closeDrawer=()=>{
-  origCloseDrawer();
-  document.body.style.overflow='';
-};
-
 /* ══ INIT ══ */
 setTimeout(()=>{$('LS').classList.add('hide');setTimeout(()=>$('LS').style.display='none',500);},2500);
-
-/* FAB visibility */
-window.mobFAB=()=>{
-  if(CP?.role==='requestor'){rTab('new',null);updateMobTab('new','requestor');}
-  else if(CP?.role==='professional'){pTab('open',null);updateMobTab('open','professional');}
-};
-// Show FAB only for requestor/professional
-function updateFAB(){
-  const fab=$('fab');if(!fab)return;
-  const show=CP&&(CP.role==='requestor'||CP.role==='professional')&&window.innerWidth<=780;
-  fab.style.display=show?'flex':'none';
-}
-window.addEventListener('resize',updateFAB);
 // Phase 4 init runs after auth state is settled
 setTimeout(()=>{ if(CP) phase4Init(); },3500);
 </script>
-
-<!-- FAB: Mobile floating action button for quick new request (requestor) -->
-<button id="fab" onclick="mobFAB()" title="New Request" style="display:none">＋</button>
 </body>
 </html>
